@@ -1,6 +1,7 @@
 import React from 'react';
-import { AppState, ViewMode } from '../types';
-import { Maximize, Play, Clock, Info } from 'lucide-react';
+import { AppState } from '../types';
+import { Play, Clock, Info, Languages } from 'lucide-react';
+import { UI_TRANSLATIONS } from '../constants';
 
 interface UIOverlayProps {
   state: AppState;
@@ -9,22 +10,30 @@ interface UIOverlayProps {
 }
 
 const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCamera }) => {
+  const t = UI_TRANSLATIONS[state.language];
+
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-10">
       {/* Header */}
       <div className="flex justify-between items-start pointer-events-auto">
         <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 text-white shadow-2xl max-w-md">
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-            Solar System 3D
+            {t.title}
           </h1>
           <p className="text-sm text-gray-300 mt-1">
-            {state.viewMode === 'SOLAR_DETAILED' 
-              ? 'Interactive Heliocentric Model' 
-              : 'Galactic Scale: Sagittarius A*'}
+            {state.viewMode === 'SOLAR_DETAILED' ? t.subtitleDetailed : t.subtitleGalaxy}
           </p>
         </div>
 
         <div className="flex gap-2">
+            <button
+                onClick={() => onStateChange({ language: state.language === 'EN' ? 'PL' : 'EN' })}
+                className="px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 border bg-black/60 border-white/10 text-gray-200 hover:bg-white/10 flex items-center gap-2"
+            >
+                <Languages size={16} />
+                {state.language}
+            </button>
+            <div className="w-px h-8 bg-white/20 mx-1 self-center" />
             <button
                 onClick={() => onStateChange({ viewMode: 'SOLAR_DETAILED' })}
                 className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 border ${
@@ -33,7 +42,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
                     : 'bg-black/60 border-white/10 text-gray-400 hover:bg-white/10'
                 }`}
             >
-                Solar View
+                {t.modeSolar}
             </button>
             <button
                 onClick={() => onStateChange({ viewMode: 'SAGITTARIUS_A' })}
@@ -43,7 +52,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
                     : 'bg-black/60 border-white/10 text-gray-400 hover:bg-white/10'
                 }`}
             >
-                Sagittarius A*
+                {t.modeGalaxy}
             </button>
         </div>
       </div>
@@ -54,12 +63,12 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
         {/* Info Box */}
         <div className="bg-black/60 backdrop-blur-sm p-3 rounded-lg border border-white/10 w-64 text-xs text-gray-300">
           <div className="flex items-center gap-2 mb-2 text-white font-bold">
-            <Info size={14} /> <span>Controls</span>
+            <Info size={14} /> <span>{t.controls}</span>
           </div>
           <ul className="space-y-1 list-disc pl-4">
-            <li>LMB + Drag to Rotate</li>
-            <li>RMB + Drag to Pan</li>
-            <li>Scroll to Zoom</li>
+            {t.controlsList.map((item, idx) => (
+                <li key={idx}>{item}</li>
+            ))}
           </ul>
         </div>
 
@@ -68,20 +77,20 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Clock size={16} className="text-blue-400" />
-              <span className="text-sm font-semibold">Time Simulation</span>
+              <span className="text-sm font-semibold">{t.timeSim}</span>
             </div>
             <button 
                 onClick={onResetCamera}
                 className="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition"
             >
-                Reset Camera
+                {t.resetCam}
             </button>
           </div>
 
           <div className="space-y-4">
             <div>
                <div className="flex justify-between text-xs text-gray-400 mb-1">
-                 <span>Speed</span>
+                 <span>{t.speed}</span>
                  <span>{state.timeScale.toFixed(1)}x</span>
                </div>
                <input
@@ -97,7 +106,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
             </div>
 
             <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400">Labels</span>
+                <span className="text-xs text-gray-400">{t.labels}</span>
                 <button
                     onClick={() => onStateChange({ showLabels: !state.showLabels })}
                     className={`w-10 h-5 rounded-full relative transition-colors ${state.showLabels ? 'bg-green-500' : 'bg-gray-600'}`}
@@ -115,10 +124,10 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
               }`}
             >
               {state.isRealTime ? (
-                <>Real-Time (J2000) Active</>
+                <>{t.realTimeActive}</>
               ) : (
                 <>
-                    <Play size={14} fill="currentColor" /> Set Real-Time
+                    <Play size={14} fill="currentColor" /> {t.realTime}
                 </>
               )}
             </button>

@@ -9,6 +9,7 @@ const App: React.FC = () => {
     timeScale: 1,
     isRealTime: false,
     showLabels: true,
+    language: 'PL', // Default to Polish as requested
   });
 
   const [resetTrigger, setResetTrigger] = useState(0);

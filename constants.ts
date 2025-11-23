@@ -3,23 +3,23 @@ import { Vector3 } from 'three';
 export interface CelestialBodyData {
   id: string;
   name: string;
+  namePL: string;
   type: 'star' | 'planet' | 'dwarf' | 'moon';
   radius: number; // Visual scale radius
   distance: number; // Distance from parent
-  color: string;
+  color: string; // Material color
   speed: number; // Orbital speed multiplier
   rotationSpeed: number;
-  texture?: string; // Optional texture path (using colors for stability)
   moons?: CelestialBodyData[];
   orbitColor?: string;
-  ring?: { inner: number; outer: number; color: string };
+  ring?: { inner: number; outer: number; color: string; };
 }
 
-// Scales are stylized for visibility, not 1:1 reality (as per BRD)
 export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'mercury',
     name: 'Mercury',
+    namePL: 'Merkury',
     type: 'planet',
     radius: 0.8,
     distance: 12,
@@ -31,17 +31,19 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'venus',
     name: 'Venus',
+    namePL: 'Wenus',
     type: 'planet',
     radius: 1.5,
     distance: 18,
     color: '#E3BB76',
     speed: 1.6,
-    rotationSpeed: -0.01, // Retrograde
+    rotationSpeed: -0.01,
     orbitColor: '#766',
   },
   {
     id: 'earth',
     name: 'Earth',
+    namePL: 'Ziemia',
     type: 'planet',
     radius: 1.6,
     distance: 26,
@@ -53,11 +55,12 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
       {
         id: 'moon',
         name: 'Moon',
+        namePL: 'Księżyc',
         type: 'moon',
         radius: 0.4,
         distance: 3.5,
         color: '#DDDDDD',
-        speed: 12.0, // Fast orbit around Earth
+        speed: 12.0,
         rotationSpeed: 0.01,
       }
     ]
@@ -65,6 +68,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'mars',
     name: 'Mars',
+    namePL: 'Mars',
     type: 'planet',
     radius: 1.1,
     distance: 34,
@@ -76,6 +80,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'ceres',
     name: 'Ceres',
+    namePL: 'Ceres',
     type: 'dwarf',
     radius: 0.5,
     distance: 42,
@@ -87,6 +92,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'jupiter',
     name: 'Jupiter',
+    namePL: 'Jowisz',
     type: 'planet',
     radius: 4.5,
     distance: 60,
@@ -95,14 +101,15 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     rotationSpeed: 0.1,
     orbitColor: '#652',
     moons: [
-      { id: 'io', name: 'Io', type: 'moon', radius: 0.5, distance: 6, color: '#F8C291', speed: 8, rotationSpeed: 0.01 },
-      { id: 'europa', name: 'Europa', type: 'moon', radius: 0.45, distance: 7.5, color: '#DFF9FB', speed: 6, rotationSpeed: 0.01 },
-      { id: 'ganymede', name: 'Ganymede', type: 'moon', radius: 0.6, distance: 9.5, color: '#95A5A6', speed: 4, rotationSpeed: 0.01 },
+      { id: 'io', name: 'Io', namePL: 'Io', type: 'moon', radius: 0.5, distance: 6, color: '#F8C291', speed: 8, rotationSpeed: 0.01 },
+      { id: 'europa', name: 'Europa', namePL: 'Europa', type: 'moon', radius: 0.45, distance: 7.5, color: '#DFF9FB', speed: 6, rotationSpeed: 0.01 },
+      { id: 'ganymede', name: 'Ganymede', namePL: 'Ganimedes', type: 'moon', radius: 0.6, distance: 9.5, color: '#95A5A6', speed: 4, rotationSpeed: 0.01 },
     ]
   },
   {
     id: 'saturn',
     name: 'Saturn',
+    namePL: 'Saturn',
     type: 'planet',
     radius: 3.8,
     distance: 85,
@@ -112,12 +119,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     orbitColor: '#654',
     ring: { inner: 4.5, outer: 7.5, color: '#C0A080' },
     moons: [
-      { id: 'titan', name: 'Titan', type: 'moon', radius: 0.7, distance: 10, color: '#F39C12', speed: 3, rotationSpeed: 0.01 },
+      { id: 'titan', name: 'Titan', namePL: 'Tytan', type: 'moon', radius: 0.7, distance: 10, color: '#F39C12', speed: 3, rotationSpeed: 0.01 },
     ]
   },
   {
     id: 'uranus',
     name: 'Uranus',
+    namePL: 'Uran',
     type: 'planet',
     radius: 2.5,
     distance: 110,
@@ -129,6 +137,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'neptune',
     name: 'Neptune',
+    namePL: 'Neptun',
     type: 'planet',
     radius: 2.4,
     distance: 130,
@@ -137,12 +146,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     rotationSpeed: 0.06,
     orbitColor: '#225',
     moons: [
-      { id: 'triton', name: 'Triton', type: 'moon', radius: 0.5, distance: 5, color: '#ECF0F1', speed: -2, rotationSpeed: 0.01 }, // Retrograde
+      { id: 'triton', name: 'Triton', namePL: 'Tryton', type: 'moon', radius: 0.5, distance: 5, color: '#ECF0F1', speed: -2, rotationSpeed: 0.01 }, 
     ]
   },
   {
     id: 'pluto',
     name: 'Pluto',
+    namePL: 'Pluton',
     type: 'dwarf',
     radius: 0.4,
     distance: 150,
@@ -154,6 +164,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'eris',
     name: 'Eris',
+    namePL: 'Eris',
     type: 'dwarf',
     radius: 0.4,
     distance: 170,
@@ -165,17 +176,19 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
   {
     id: 'haumea',
     name: 'Haumea',
+    namePL: 'Haumea',
     type: 'dwarf',
-    radius: 0.35, // Actually ellipsoidal, simplified here
+    radius: 0.35, 
     distance: 160,
     color: '#BDC3C7',
     speed: 0.0035,
-    rotationSpeed: 0.15, // Fast spinner
+    rotationSpeed: 0.15,
     orbitColor: '#333',
   },
   {
     id: 'makemake',
     name: 'Makemake',
+    namePL: 'Makemake',
     type: 'dwarf',
     radius: 0.38,
     distance: 165,
@@ -190,4 +203,45 @@ export const GALAXY_DATA = {
     blackHoleRadius: 20,
     orbitRadius: 200,
     orbitSpeed: 0.5, // Visual speed
+};
+
+export const UI_TRANSLATIONS = {
+  EN: {
+    title: "Solar System 3D",
+    subtitleDetailed: "Interactive Heliocentric Model",
+    subtitleGalaxy: "Galactic Scale: Sagittarius A*",
+    modeSolar: "Solar View",
+    modeGalaxy: "Sagittarius A*",
+    controls: "Controls",
+    controlsList: [
+      "LMB + Drag to Rotate",
+      "RMB + Drag to Pan",
+      "Scroll to Zoom"
+    ],
+    timeSim: "Time Simulation",
+    resetCam: "Reset Camera",
+    speed: "Speed",
+    labels: "Labels",
+    realTime: "Set Real-Time",
+    realTimeActive: "Real-Time (J2000) Active"
+  },
+  PL: {
+    title: "Układ Słoneczny 3D",
+    subtitleDetailed: "Interaktywny Model Heliocentryczny",
+    subtitleGalaxy: "Skala Galaktyczna: Sagittarius A*",
+    modeSolar: "Widok Solarny",
+    modeGalaxy: "Sagittarius A*",
+    controls: "Sterowanie",
+    controlsList: [
+      "LPM + Przesuń by obracać",
+      "PPM + Przesuń by przesuwać",
+      "Scroll by przybliżać"
+    ],
+    timeSim: "Symulacja Czasu",
+    resetCam: "Reset Kamery",
+    speed: "Prędkość",
+    labels: "Etykiety",
+    realTime: "Tryb Rzeczywisty",
+    realTimeActive: "Czas Rzeczywisty (J2000)"
+  }
 };

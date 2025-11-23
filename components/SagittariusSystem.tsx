@@ -4,6 +4,50 @@ import { GALAXY_DATA } from '../constants';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
 
+// Augment React's JSX namespace for R3F elements
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      lineLoop: any;
+      lineDashedMaterial: any;
+      lineBasicMaterial: any;
+      mesh: any;
+      ringGeometry: any;
+      meshStandardMaterial: any;
+      group: any;
+      sphereGeometry: any;
+      meshBasicMaterial: any;
+      pointLight: any;
+      torusGeometry: any;
+      line: any;
+      bufferGeometry: any;
+      ambientLight: any;
+    }
+  }
+}
+
+// Augment global JSX namespace as backup
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      lineLoop: any;
+      lineDashedMaterial: any;
+      lineBasicMaterial: any;
+      mesh: any;
+      ringGeometry: any;
+      meshStandardMaterial: any;
+      group: any;
+      sphereGeometry: any;
+      meshBasicMaterial: any;
+      pointLight: any;
+      torusGeometry: any;
+      line: any;
+      bufferGeometry: any;
+      ambientLight: any;
+    }
+  }
+}
+
 export const SagittariusSystem: React.FC<{ timeScale: number }> = ({ timeScale }) => {
   const solarSystemRef = useRef<THREE.Group>(null);
   const diskRef = useRef<THREE.Mesh>(null);
