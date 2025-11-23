@@ -10,6 +10,7 @@ const App: React.FC = () => {
     isRealTime: false,
     showLabels: true,
     language: 'PL', // Default to Polish as requested
+    targetBody: null,
   });
 
   const [resetTrigger, setResetTrigger] = useState(0);
@@ -20,6 +21,7 @@ const App: React.FC = () => {
 
   const handleResetCamera = useCallback(() => {
     setResetTrigger((prev) => prev + 1);
+    setAppState(prev => ({ ...prev, targetBody: null }));
   }, []);
 
   return (
