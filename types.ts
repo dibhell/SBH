@@ -7,4 +7,5 @@ export interface AppState {
   isRealTime: boolean;
   showLabels: boolean;
   language: Language;
+  targetBody: string | null; // For navigation jump
 }
