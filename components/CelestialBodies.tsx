@@ -147,8 +147,9 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const isGiant = isStar || isBlackHole;
 
   // Scaling logic for labels of massive objects
-  const labelDistanceFactor = isGiant && data.radius > 50 ? data.radius * 3 : 50;
-  const labelYOffset = isGiant && data.radius > 20 ? data.radius * 1.5 : data.radius + 3;
+  // Adjusted: Reduce the multiplier slightly so text doesn't fly off too far, but keep it large
+  const labelDistanceFactor = isGiant && data.radius > 50 ? Math.max(100, data.radius * 2) : 50;
+  const labelYOffset = isGiant && data.radius > 20 ? data.radius * 1.3 : data.radius + 3;
 
   const inclinationRad = (data.inclination || 0) * (Math.PI / 180);
 
@@ -174,15 +175,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
       z = Math.sin(angleRef.current) * data.distance;
     }
 
-    // Apply Inclination:
-    // Simply rotating (x,0,z) around Z-axis by inclination angle for "visual" tilt
-    // Actually standard physics is tilt around line of nodes. 
-    // Simplified: Rotate the position vector on the Z-Y plane.
-    
-    // x remains x (assuming Line of Nodes is X axis for simplicity in visualizer)
-    // y = z * sin(inc)
-    // z_new = z * cos(inc)
-    
+    // Apply Inclination logic
     const y_pos = z * Math.sin(inclinationRad);
     const z_pos = z * Math.cos(inclinationRad);
 
@@ -243,8 +236,6 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
                     color={data.color}
                     roughness={0.8}
                     metalness={0.2}
-                    // Removed emissive to allow shadows to work properly for 3D effect
-                    // Only add slight emissive if you want "night lights" effect, but flat color is bad for 3D.
                 />
             )}
         </mesh>
@@ -281,10 +272,9 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             </>
         )}
 
-        {/* Rings for Saturn-like bodies */}
         {data.ring && <PlanetRing ring={data.ring} />}
 
-        {/* Labels - Scaled for huge objects */}
+        {/* Labels - Enhanced for readability on huge objects */}
         {showLabels && (
           <Html 
             position={[0, labelYOffset, 0]} 
@@ -304,28 +294,28 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}
             >
+                {/* Name Badge */}
                 <div className={`
-                    px-4 py-2 rounded-lg font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide select-none
+                    px-5 py-3 rounded-xl font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide select-none
                     ${hovered 
-                    ? 'bg-blue-600 text-white scale-125 z-50 text-3xl border-blue-300 shadow-[0_0_30px_rgba(37,99,235,1)]' 
-                    : 'bg-black/70 text-white hover:bg-black/90 text-xl'}
+                    ? 'bg-blue-600 text-white scale-125 z-50 text-4xl border-blue-300 shadow-[0_0_40px_rgba(37,99,235,1)]' 
+                    : 'bg-black/70 text-white hover:bg-black/90 text-2xl'}
                 `}>
                   {displayName}
                 </div>
 
-                {/* Tooltip Description */}
+                {/* Tooltip Description - Wider and larger text */}
                 <div className={`
-                    absolute top-full mt-4 w-64 p-3 rounded-md bg-black/95 border border-white/30 text-white text-sm backdrop-blur-xl transition-all duration-300 z-50
-                    ${hovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}
+                    absolute top-full mt-6 w-80 sm:w-96 max-w-lg p-5 rounded-xl bg-black/95 border border-white/30 text-white backdrop-blur-xl transition-all duration-300 z-50
+                    ${hovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'}
                 `}>
-                    <div className="text-xs text-blue-300 uppercase font-bold mb-1 tracking-wider">{typeLabel}</div>
-                    <p className="leading-snug text-gray-200">{description}</p>
+                    <div className="text-sm text-blue-300 uppercase font-bold mb-2 tracking-wider">{typeLabel}</div>
+                    <p className="leading-relaxed text-base text-gray-200">{description}</p>
                 </div>
             </div>
           </Html>
         )}
 
-        {/* Recursively render moons */}
         {data.moons && data.moons.map((moon) => (
           <CelestialBody 
             key={moon.id} 
@@ -349,7 +339,6 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ sho
 
     return (
         <group>
-            {/* Core Sun */}
             <mesh 
                 onPointerOver={() => setHover(true)}
                 onPointerOut={() => setHover(false)}
@@ -357,16 +346,13 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ sho
                 <sphereGeometry args={[6, 32, 32]} />
                 <meshBasicMaterial color="#FFD700" />
             </mesh>
-            {/* Main Light Source - Increased Intensity for Shadows */}
             <pointLight intensity={3.5} distance={10000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
             
-            {/* Outer Glow shell */}
             <mesh scale={[1.1, 1.1, 1.1]}>
                  <sphereGeometry args={[6, 32, 32]} />
                  <meshBasicMaterial color="#FF8C00" transparent opacity={0.3} side={THREE.BackSide}/>
             </mesh>
 
-            {/* Sun Label */}
             {showLabels && (
                 <Html 
                     position={[0, 9, 0]} 
@@ -387,21 +373,21 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ sho
                         onMouseLeave={() => setHover(false)}
                     >
                         <div className={`
-                            px-4 py-2 rounded-lg font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide select-none
+                            px-5 py-3 rounded-xl font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide select-none
                             ${hovered 
-                            ? 'bg-yellow-600 text-white scale-125 z-50 text-3xl border-yellow-300 shadow-[0_0_30px_rgba(255,215,0,0.8)]' 
-                            : 'bg-black/70 text-white hover:bg-black/90 text-xl'}
+                            ? 'bg-yellow-600 text-white scale-125 z-50 text-4xl border-yellow-300 shadow-[0_0_40px_rgba(255,215,0,0.8)]' 
+                            : 'bg-black/70 text-white hover:bg-black/90 text-2xl'}
                         `}>
                             {displayName}
                         </div>
 
-                        {/* Sun Tooltip */}
+                        {/* Sun Tooltip - Wider and Larger */}
                         <div className={`
-                            absolute top-full mt-4 w-64 p-3 rounded-md bg-black/95 border border-yellow-500/50 text-white text-sm backdrop-blur-xl transition-all duration-300 z-50
-                            ${hovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}
+                            absolute top-full mt-6 w-80 sm:w-96 p-5 rounded-xl bg-black/95 border border-yellow-500/50 text-white backdrop-blur-xl transition-all duration-300 z-50
+                            ${hovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'}
                         `}>
-                            <div className="text-xs text-yellow-300 uppercase font-bold mb-1 tracking-wider">{typeLabel}</div>
-                            <p className="leading-snug text-gray-200">{description}</p>
+                            <div className="text-sm text-yellow-300 uppercase font-bold mb-2 tracking-wider">{typeLabel}</div>
+                            <p className="leading-relaxed text-base text-gray-200">{description}</p>
                         </div>
                     </div>
                 </Html>
