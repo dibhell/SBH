@@ -10,6 +10,7 @@ export interface CelestialBodyData {
   color: string; // Material color
   speed: number; // Orbital speed multiplier
   rotationSpeed: number;
+  inclination?: number; // Orbit tilt in degrees
   moons?: CelestialBodyData[];
   orbitColor?: string;
   ring?: { inner: number; outer: number; color: string; };
@@ -28,6 +29,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#A5A5A5',
     speed: 4.1,
     rotationSpeed: 0.02,
+    inclination: 7.0,
     orbitColor: '#555',
   },
   {
@@ -42,6 +44,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#E3BB76',
     speed: 1.6,
     rotationSpeed: -0.01,
+    inclination: 3.4,
     orbitColor: '#766',
   },
   {
@@ -56,6 +59,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#22A6B3',
     speed: 1.0,
     rotationSpeed: 0.05,
+    inclination: 0,
     orbitColor: '#357',
     moons: [
       {
@@ -70,6 +74,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         color: '#DDDDDD',
         speed: 12.0,
         rotationSpeed: 0.01,
+        inclination: 5.1
       }
     ]
   },
@@ -85,6 +90,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#555555',
     speed: 1.1,
     rotationSpeed: 0.1,
+    inclination: 3.3,
     orbitColor: '#333',
   },
   {
@@ -99,6 +105,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#333333',
     speed: 0.9,
     rotationSpeed: 0.1,
+    inclination: 6.0,
     orbitColor: '#333',
   },
   {
@@ -113,6 +120,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#EB4D4B',
     speed: 0.53,
     rotationSpeed: 0.04,
+    inclination: 1.85,
     orbitColor: '#733',
   },
   // Asteroid Belt Objects
@@ -128,6 +136,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#DCDCDC',
     speed: 0.45,
     rotationSpeed: 0.08,
+    inclination: 7.1,
     orbitColor: '#444',
   },
   {
@@ -142,6 +151,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#708090',
     speed: 0.44,
     rotationSpeed: 0.08,
+    inclination: 34.8, // Very High
     orbitColor: '#444',
   },
   {
@@ -156,6 +166,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#2F2F2F',
     speed: 0.43,
     rotationSpeed: 0.09,
+    inclination: 3.8,
     orbitColor: '#333',
   },
   {
@@ -170,6 +181,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#999999',
     speed: 0.4,
     rotationSpeed: 0.05,
+    inclination: 10.6,
     orbitColor: '#555',
   },
   {
@@ -184,6 +196,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#AEEEEE',
     speed: 0.2, // Highly variable in reality
     rotationSpeed: 0.1,
+    inclination: 162.3, // Retrograde
     orbitColor: '#87CEFA',
   },
   {
@@ -198,6 +211,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#F9CA24',
     speed: 0.08,
     rotationSpeed: 0.1,
+    inclination: 1.3,
     orbitColor: '#652',
     moons: [
       { 
@@ -266,6 +280,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#F0DF90',
     speed: 0.03,
     rotationSpeed: 0.09,
+    inclination: 2.48,
     orbitColor: '#654',
     ring: { inner: 4.5, outer: 7.5, color: '#C0A080' },
     moons: [
@@ -309,6 +324,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#7ED6DF',
     speed: 0.01,
     rotationSpeed: 0.06,
+    inclination: 0.77,
     orbitColor: '#256',
     moons: [
        { id: 'miranda', name: 'Miranda', namePL: 'Miranda', description: "Features a strange, jigsaw-puzzle landscape with giant canyons (verona Rupes) and patchwork terrain.", descriptionPL: "Posiada dziwny krajobraz przypominający puzzle, z gigantycznymi kanionami (Verona Rupes) i pofałdowanym terenem.", type: 'moon', radius: 0.2, distance: 3.5, color: '#E0E0E0', speed: 6, rotationSpeed: 0.02 },
@@ -330,6 +346,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#30336B',
     speed: 0.006,
     rotationSpeed: 0.06,
+    inclination: 1.77,
     orbitColor: '#225',
     moons: [
       { 
@@ -359,6 +376,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#D1CCC0',
     speed: 0.004,
     rotationSpeed: 0.01,
+    inclination: 17.1,
     orbitColor: '#444',
   },
   {
@@ -373,6 +391,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#8B0000',
     speed: 0.02,
     rotationSpeed: 0.5,
+    inclination: 60,
     orbitColor: '#800000',
   },
   {
@@ -387,6 +406,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#BDC3C7',
     speed: 0.0035,
     rotationSpeed: 0.15,
+    inclination: 28.2,
     orbitColor: '#333',
   },
   {
@@ -401,6 +421,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#8B4513',
     speed: 0.0034,
     rotationSpeed: 0.02,
+    inclination: 7.9,
     orbitColor: '#333',
   },
   {
@@ -415,6 +436,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#CD853F',
     speed: 0.0033,
     rotationSpeed: 0.04, // Fast rotator
+    inclination: 17.2,
     orbitColor: '#333',
   },
   {
@@ -429,6 +451,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#E67E22',
     speed: 0.0032,
     rotationSpeed: 0.02,
+    inclination: 29,
     orbitColor: '#333',
   },
   {
@@ -443,6 +466,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#5F9EA0',
     speed: 0.0031,
     rotationSpeed: 0.02,
+    inclination: 23.9,
     orbitColor: '#333',
   },
   {
@@ -457,6 +481,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FFFFFF',
     speed: 0.003,
     rotationSpeed: 0.01,
+    inclination: 44.0, // Highly inclined
     orbitColor: '#333',
   },
   {
@@ -471,6 +496,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#778899',
     speed: 0.004,
     rotationSpeed: 0.02,
+    inclination: 20.5,
     orbitColor: '#444',
   },
   {
@@ -485,6 +511,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#B22222',
     speed: 0.0025,
     rotationSpeed: 0.02,
+    inclination: 30.7,
     orbitColor: '#333',
   },
   {
@@ -499,6 +526,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FF4500',
     speed: 0.001,
     rotationSpeed: 0.02,
+    inclination: 11.9,
     orbitColor: '#333',
   },
   // Giant Stars for Scale Comparison (Placed far out)
@@ -514,6 +542,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#AEC2E0', // Blue-white
     speed: 0,
     rotationSpeed: 0.01,
+    inclination: 0,
   },
   {
     id: 'pollux',
@@ -527,6 +556,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FFD180', // Orange
     speed: 0,
     rotationSpeed: 0.005,
+    inclination: 5,
   },
   {
     id: 'arcturus',
@@ -540,6 +570,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FF8C00', // Orange-Red
     speed: 0,
     rotationSpeed: 0.004,
+    inclination: -5,
   },
   {
     id: 'aldebaran',
@@ -553,6 +584,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FF4500', // Red-Orange
     speed: 0,
     rotationSpeed: 0.003,
+    inclination: 2,
   },
   {
     id: 'rigel',
@@ -566,6 +598,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#ADD8E6', // Light Blue
     speed: 0,
     rotationSpeed: 0.002,
+    inclination: -2,
   },
   {
     id: 'antares',
@@ -579,6 +612,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FF0000', // Red
     speed: 0,
     rotationSpeed: 0.001,
+    inclination: 0,
   },
   {
     id: 'betelgeuse',
@@ -592,6 +626,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#8B0000', // Deep Red
     speed: 0,
     rotationSpeed: 0.001,
+    inclination: 10,
   },
   {
     id: 'uy_scuti',
@@ -605,6 +640,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#FF2400', // Scarlet
     speed: 0,
     rotationSpeed: 0.0005,
+    inclination: -10,
   },
   {
     id: 'stephenson',
@@ -618,6 +654,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#DC143C', // Crimson
     speed: 0,
     rotationSpeed: 0.0004,
+    inclination: 15,
   },
   {
     id: 'sagittarius_a',
@@ -631,6 +668,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#000000', 
     speed: 0,
     rotationSpeed: 0.1,
+    inclination: 0,
   },
   {
     id: 'ton_618',
@@ -644,6 +682,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     color: '#000000',
     speed: 0,
     rotationSpeed: 0.05,
+    inclination: -5,
   }
 ];
 
@@ -678,7 +717,8 @@ export const UI_TRANSLATIONS = {
     speed: "Speed",
     labels: "Labels",
     realTime: "Set Real-Time",
-    realTimeActive: "Real-Time (J2000) Active"
+    realTimeActive: "Real-Time (J2000) Active",
+    jumpTo: "Jump to Object..."
   },
   PL: {
     title: "Układ Słoneczny 3D",
@@ -697,6 +737,7 @@ export const UI_TRANSLATIONS = {
     speed: "Prędkość",
     labels: "Etykiety",
     realTime: "Tryb Rzeczywisty",
-    realTimeActive: "Czas Rzeczywisty (J2000)"
+    realTimeActive: "Czas Rzeczywisty (J2000)",
+    jumpTo: "Idź do obiektu..."
   }
 };
