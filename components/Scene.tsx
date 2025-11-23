@@ -76,11 +76,14 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
       
       <OrbitControls 
         ref={controlsRef}
+        makeDefault // Helps ensuring this control takes precedence
         enablePan={true} 
         enableZoom={true} 
         enableRotate={true}
-        minDistance={10}
-        maxDistance={600}
+        enableDamping={true} // Smoother controls, helps prevent 'stuck' feeling
+        dampingFactor={0.1}
+        minDistance={5}
+        maxDistance={800}
       />
 
       <ambientLight intensity={0.2} />
@@ -90,7 +93,7 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
 
       {state.viewMode === 'SOLAR_DETAILED' ? (
         <group>
-          <Sun />
+          <Sun showLabels={state.showLabels} language={state.language} />
           {SOLAR_SYSTEM_DATA.map((body) => (
             <CelestialBody 
               key={body.id} 
