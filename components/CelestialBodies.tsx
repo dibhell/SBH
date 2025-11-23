@@ -55,7 +55,7 @@ interface BodyProps {
   language: Language;
 }
 
-const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean }> = ({ radius, color = '#444', dashed = false }) => {
+const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; inclination: number }> = ({ radius, color = '#444', dashed = false, inclination }) => {
   const points = useMemo(() => {
     const pts = [];
     const segments = 128;
@@ -69,6 +69,13 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean }> 
   const lineGeometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
   const lineRef = useRef<THREE.LineLoop>(null);
 
+  // Apply inclination rotation to the orbit ring itself
+  const rotationEuler = useMemo(() => {
+      const rad = (inclination * Math.PI) / 180;
+      // Rotate around X axis to tilt the plane
+      return new THREE.Euler(0, 0, rad);
+  }, [inclination]);
+
   useLayoutEffect(() => {
     if (dashed && lineRef.current) {
       lineRef.current.computeLineDistances();
@@ -76,25 +83,27 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean }> 
   }, [dashed, lineGeometry]);
 
   return (
-    <lineLoop ref={lineRef} geometry={lineGeometry}>
-      {dashed ? (
-        <lineDashedMaterial 
-          attach="material" 
-          color={color} 
-          transparent 
-          opacity={0.3} 
-          dashSize={1} 
-          gapSize={1} 
-        />
-      ) : (
-        <lineBasicMaterial 
-          attach="material" 
-          color={color} 
-          transparent 
-          opacity={0.3} 
-        />
-      )}
-    </lineLoop>
+    <group rotation={rotationEuler}>
+        <lineLoop ref={lineRef} geometry={lineGeometry}>
+        {dashed ? (
+            <lineDashedMaterial 
+            attach="material" 
+            color={color} 
+            transparent 
+            opacity={0.3} 
+            dashSize={1} 
+            gapSize={1} 
+            />
+        ) : (
+            <lineBasicMaterial 
+            attach="material" 
+            color={color} 
+            transparent 
+            opacity={0.3} 
+            />
+        )}
+        </lineLoop>
+    </group>
   );
 };
 
@@ -141,27 +150,43 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const labelDistanceFactor = isGiant && data.radius > 50 ? data.radius * 3 : 50;
   const labelYOffset = isGiant && data.radius > 20 ? data.radius * 1.5 : data.radius + 3;
 
+  const inclinationRad = (data.inclination || 0) * (Math.PI / 180);
+
   useFrame((_, delta) => {
     if (!meshRef.current) return;
 
+    let x = 0, z = 0;
+
     if (isRealTime) {
       if (data.speed === 0) {
-        // Stationary stars/black holes in comparison line
-         meshRef.current.position.x = data.distance;
-         meshRef.current.position.z = 0;
+         x = data.distance;
+         z = 0;
       } else {
         const now = Date.now() / 1000;
         const orbitalPeriodSeconds = 365.25 * 24 * 3600 / data.speed;
         const currentAngle = (now / orbitalPeriodSeconds) * Math.PI * 2;
-        meshRef.current.position.x = Math.cos(currentAngle) * data.distance;
-        meshRef.current.position.z = Math.sin(currentAngle) * data.distance;
+        x = Math.cos(currentAngle) * data.distance;
+        z = Math.sin(currentAngle) * data.distance;
       }
     } else {
       angleRef.current += data.speed * 0.1 * delta * timeScale;
-      // If speed is 0, angleRef doesn't change, they stay fixed
-      meshRef.current.position.x = Math.cos(angleRef.current) * data.distance;
-      meshRef.current.position.z = Math.sin(angleRef.current) * data.distance;
+      x = Math.cos(angleRef.current) * data.distance;
+      z = Math.sin(angleRef.current) * data.distance;
     }
+
+    // Apply Inclination:
+    // Simply rotating (x,0,z) around Z-axis by inclination angle for "visual" tilt
+    // Actually standard physics is tilt around line of nodes. 
+    // Simplified: Rotate the position vector on the Z-Y plane.
+    
+    // x remains x (assuming Line of Nodes is X axis for simplicity in visualizer)
+    // y = z * sin(inc)
+    // z_new = z * cos(inc)
+    
+    const y_pos = z * Math.sin(inclinationRad);
+    const z_pos = z * Math.cos(inclinationRad);
+
+    meshRef.current.position.set(x, y_pos, z_pos);
 
     if (planetRef.current) {
       planetRef.current.rotation.y += data.rotationSpeed * delta;
@@ -207,17 +232,19 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             ref={planetRef}
             onPointerOver={() => setHover(true)}
             onPointerOut={() => setHover(false)}
+            castShadow={!isStar}
+            receiveShadow={!isStar}
         >
-            <sphereGeometry args={[data.radius, 32, 32]} />
+            <sphereGeometry args={[data.radius, 64, 64]} />
             {isStar ? (
                 <meshBasicMaterial color={data.color} />
             ) : (
                 <meshStandardMaterial 
                     color={data.color}
-                    roughness={0.7}
+                    roughness={0.8}
                     metalness={0.2}
-                    emissive={data.color}
-                    emissiveIntensity={0.1}
+                    // Removed emissive to allow shadows to work properly for 3D effect
+                    // Only add slight emissive if you want "night lights" effect, but flat color is bad for 3D.
                 />
             )}
         </mesh>
@@ -230,7 +257,8 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
         <OrbitLine 
             radius={data.distance} 
             color={data.orbitColor} 
-            dashed={isSmallBody} 
+            dashed={isSmallBody}
+            inclination={data.inclination || 0} 
         />
       )}
       
@@ -248,7 +276,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             <>
                 {renderBody()}
                 {isStar && (
-                    <pointLight intensity={1.5} distance={data.radius * 50} decay={1} color={data.color} />
+                    <pointLight intensity={2} distance={data.radius * 50} decay={1} color={data.color} />
                 )}
             </>
         )}
@@ -329,7 +357,8 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ sho
                 <sphereGeometry args={[6, 32, 32]} />
                 <meshBasicMaterial color="#FFD700" />
             </mesh>
-            <pointLight intensity={2} distance={300} decay={1} color="#FFF8E7" />
+            {/* Main Light Source - Increased Intensity for Shadows */}
+            <pointLight intensity={3.5} distance={10000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
             
             {/* Outer Glow shell */}
             <mesh scale={[1.1, 1.1, 1.1]}>
