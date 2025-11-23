@@ -1,6 +1,6 @@
 import React from 'react';
 import { AppState } from '../types';
-import { Play, Clock, Info, Languages } from 'lucide-react';
+import { Play, Clock, Info, Languages, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { UI_TRANSLATIONS } from '../constants';
 
 interface UIOverlayProps {
@@ -11,6 +11,11 @@ interface UIOverlayProps {
 
 const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCamera }) => {
   const t = UI_TRANSLATIONS[state.language];
+
+  const dispatchMove = (x: number, y: number) => {
+      const event = new CustomEvent('camera-move', { detail: { x, y } });
+      window.dispatchEvent(event);
+  };
 
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-10">
@@ -57,7 +62,40 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Navigation D-Pad (Bottom Left) */}
+      <div className="absolute bottom-6 left-6 pointer-events-auto hidden md:block">
+        <div className="grid grid-cols-3 gap-1 bg-black/40 p-2 rounded-full border border-white/10 backdrop-blur-sm">
+            <div />
+            <button 
+                onClick={() => dispatchMove(0, 1)}
+                className="w-10 h-10 bg-white/10 hover:bg-blue-600/50 rounded flex items-center justify-center transition-colors active:scale-95"
+            >
+                <ArrowUp size={20} />
+            </button>
+            <div />
+            <button 
+                onClick={() => dispatchMove(-1, 0)}
+                className="w-10 h-10 bg-white/10 hover:bg-blue-600/50 rounded flex items-center justify-center transition-colors active:scale-95"
+            >
+                <ArrowLeft size={20} />
+            </button>
+            <button 
+                onClick={() => dispatchMove(0, -1)}
+                className="w-10 h-10 bg-white/10 hover:bg-blue-600/50 rounded flex items-center justify-center transition-colors active:scale-95"
+            >
+                <ArrowDown size={20} />
+            </button>
+            <button 
+                onClick={() => dispatchMove(1, 0)}
+                className="w-10 h-10 bg-white/10 hover:bg-blue-600/50 rounded flex items-center justify-center transition-colors active:scale-95"
+            >
+                <ArrowRight size={20} />
+            </button>
+        </div>
+        <div className="text-xs text-gray-500 text-center mt-2">Pan Camera</div>
+      </div>
+
+      {/* Controls (Right Side) */}
       <div className="flex flex-col gap-4 items-end pointer-events-auto">
         
         {/* Info Box */}
@@ -69,6 +107,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
             {t.controlsList.map((item, idx) => (
                 <li key={idx}>{item}</li>
             ))}
+             <li>Arrow keys to Pan</li>
           </ul>
         </div>
 
