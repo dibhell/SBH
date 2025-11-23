@@ -120,11 +120,13 @@ const BODY_TYPE_TRANSLATIONS: Record<string, { EN: string, PL: string }> = {
     asteroid: { EN: 'Asteroid', PL: 'Asteroida' },
     comet: { EN: 'Comet', PL: 'Kometa' },
     interstellar: { EN: 'Interstellar Object', PL: 'Obiekt Międzygwiezdny' },
+    blackhole: { EN: 'Black Hole', PL: 'Czarna Dziura' },
 };
 
 export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime, showLabels, language }) => {
   const meshRef = useRef<THREE.Group>(null);
   const planetRef = useRef<THREE.Mesh>(null);
+  const accretionRef = useRef<THREE.Mesh>(null);
   
   // Random start angle
   const startAngle = useMemo(() => (data.name.length * 13) % 360, [data.name]); 
@@ -132,13 +134,19 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
 
   const isSmallBody = ['dwarf', 'asteroid', 'comet', 'interstellar'].includes(data.type);
   const isStar = data.type === 'star';
+  const isBlackHole = data.type === 'blackhole';
+  const isGiant = isStar || isBlackHole;
+
+  // Scaling logic for labels of massive objects
+  const labelDistanceFactor = isGiant && data.radius > 50 ? data.radius * 3 : 50;
+  const labelYOffset = isGiant && data.radius > 20 ? data.radius * 1.5 : data.radius + 3;
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
 
     if (isRealTime) {
       if (data.speed === 0) {
-        // Stationary stars in comparison line
+        // Stationary stars/black holes in comparison line
          meshRef.current.position.x = data.distance;
          meshRef.current.position.z = 0;
       } else {
@@ -150,13 +158,16 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
       }
     } else {
       angleRef.current += data.speed * 0.1 * delta * timeScale;
-      // If speed is 0 (stars), angleRef doesn't change, they stay fixed
+      // If speed is 0, angleRef doesn't change, they stay fixed
       meshRef.current.position.x = Math.cos(angleRef.current) * data.distance;
       meshRef.current.position.z = Math.sin(angleRef.current) * data.distance;
     }
 
     if (planetRef.current) {
       planetRef.current.rotation.y += data.rotationSpeed * delta;
+    }
+    if (accretionRef.current) {
+       accretionRef.current.rotation.z -= data.rotationSpeed * 2 * delta; 
     }
   });
 
@@ -169,32 +180,53 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     ? BODY_TYPE_TRANSLATIONS[rawType][language] 
     : rawType.toUpperCase();
 
-  const showTrail = !isSmallBody && data.type !== 'moon' && !isStar;
+  const showTrail = !isSmallBody && data.type !== 'moon' && !isGiant;
   
-  const PlanetMesh = (
-    <mesh 
-      ref={planetRef}
-      onPointerOver={() => setHover(true)}
-      onPointerOut={() => setHover(false)}
-    >
-      <sphereGeometry args={[data.radius, 32, 32]} />
-      {isStar ? (
-        <meshBasicMaterial color={data.color} />
-      ) : (
-        <meshStandardMaterial 
-            color={data.color}
-            roughness={0.7}
-            metalness={0.2}
-            emissive={data.color}
-            emissiveIntensity={0.1}
-        />
-      )}
-    </mesh>
-  );
+  const renderBody = () => {
+    if (isBlackHole) {
+        return (
+            <group>
+                {/* Event Horizon */}
+                <mesh ref={planetRef} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+                    <sphereGeometry args={[data.radius, 64, 64]} />
+                    <meshBasicMaterial color="black" />
+                </mesh>
+                {/* Accretion Disk */}
+                <mesh ref={accretionRef} rotation={[Math.PI / 2.5, 0, 0]}>
+                    <ringGeometry args={[data.radius * 1.5, data.radius * 3.5, 64]} />
+                    <meshBasicMaterial color="#FF6600" transparent opacity={0.7} side={THREE.DoubleSide} />
+                </mesh>
+                {/* Glow */}
+                <pointLight intensity={3} distance={data.radius * 10} decay={2} color="#FF4500" />
+            </group>
+        )
+    }
+
+    return (
+        <mesh 
+            ref={planetRef}
+            onPointerOver={() => setHover(true)}
+            onPointerOut={() => setHover(false)}
+        >
+            <sphereGeometry args={[data.radius, 32, 32]} />
+            {isStar ? (
+                <meshBasicMaterial color={data.color} />
+            ) : (
+                <meshStandardMaterial 
+                    color={data.color}
+                    roughness={0.7}
+                    metalness={0.2}
+                    emissive={data.color}
+                    emissiveIntensity={0.1}
+                />
+            )}
+        </mesh>
+    );
+  }
 
   return (
     <>
-      {!isStar && (
+      {!isGiant && (
         <OrbitLine 
             radius={data.distance} 
             color={data.orbitColor} 
@@ -203,7 +235,6 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
       )}
       
       <group ref={meshRef}>
-        {/* The Planet/Star Mesh */}
         {showTrail ? (
             <Trail
                 width={data.radius * 1.2}
@@ -211,11 +242,11 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
                 color={new THREE.Color(data.color)}
                 attenuation={(width) => width * 0.5}
             >
-                {PlanetMesh}
+                {renderBody()}
             </Trail>
         ) : (
             <>
-                {PlanetMesh}
+                {renderBody()}
                 {isStar && (
                     <pointLight intensity={1.5} distance={data.radius * 50} decay={1} color={data.color} />
                 )}
@@ -225,19 +256,19 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
         {/* Rings for Saturn-like bodies */}
         {data.ring && <PlanetRing ring={data.ring} />}
 
-        {/* Labels - Enlarged and more readable */}
+        {/* Labels - Scaled for huge objects */}
         {showLabels && (
           <Html 
-            position={[0, data.radius + (isStar ? data.radius * 0.2 + 2 : 3), 0]} 
+            position={[0, labelYOffset, 0]} 
             center 
-            distanceFactor={50} 
+            distanceFactor={labelDistanceFactor} 
             zIndexRange={hovered ? [100000, 100000] : [100, 0]}
-            // Remove fixed width/height so it doesn't block clicks in empty space
             style={{ 
                 pointerEvents: 'none',
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'center'
+                alignItems: 'center',
+                width: 'max-content'
             }}
           >
             <div 
@@ -317,7 +348,8 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ sho
                         pointerEvents: 'none',
                         display: 'flex',
                         justifyContent: 'center',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        width: 'max-content'
                     }}
                 >
                     <div 
