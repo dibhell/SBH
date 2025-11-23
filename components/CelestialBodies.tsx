@@ -133,7 +133,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
 
   const inclinationRad = (data.inclination || 0) * (Math.PI / 180);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!meshRef.current) return;
 
     let x = 0, z = 0;
