@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useLayoutEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html, Trail } from '@react-three/drei';
+import { Html, Trail, MeshDistortMaterial } from '@react-three/drei';
 import * as THREE from 'three';
 import { CelestialBodyData, SUN_DATA } from '../constants';
 import { Language } from '../types';
@@ -22,27 +22,7 @@ declare module 'react' {
       torusGeometry: any;
       bufferGeometry: any;
       ambientLight: any;
-    }
-  }
-}
-
-// Augment global JSX namespace as backup
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      lineLoop: any;
-      lineDashedMaterial: any;
-      lineBasicMaterial: any;
-      mesh: any;
-      ringGeometry: any;
-      meshStandardMaterial: any;
-      group: any;
-      sphereGeometry: any;
-      meshBasicMaterial: any;
-      pointLight: any;
-      torusGeometry: any;
-      bufferGeometry: any;
-      ambientLight: any;
+      meshDistortMaterial: any; // Add this for the new star material
     }
   }
 }
@@ -69,11 +49,10 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; in
   const lineGeometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
   const lineRef = useRef<THREE.LineLoop>(null);
 
-  // Apply inclination rotation to the orbit ring itself
+  // FIX: Rotation must be around X axis to match planet inclination math (y = z * sin(inc))
   const rotationEuler = useMemo(() => {
       const rad = (inclination * Math.PI) / 180;
-      // Rotate around X axis to tilt the plane
-      return new THREE.Euler(0, 0, rad);
+      return new THREE.Euler(rad, 0, 0); 
   }, [inclination]);
 
   useLayoutEffect(() => {
@@ -99,7 +78,7 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; in
             attach="material" 
             color={color} 
             transparent 
-            opacity={0.3} 
+            opacity={0.2} 
             />
         )}
         </lineLoop>
@@ -109,13 +88,15 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; in
 
 const PlanetRing: React.FC<{ ring: NonNullable<CelestialBodyData['ring']> }> = ({ ring }) => {
     return (
-        <mesh rotation={[-Math.PI / 2.5, 0, 0]}>
+        <mesh rotation={[-Math.PI / 2.2, 0, 0]}>
             <ringGeometry args={[ring.inner, ring.outer, 64]} />
             <meshStandardMaterial 
                 color={ring.color} 
                 side={THREE.DoubleSide} 
                 transparent 
-                opacity={0.6} 
+                opacity={0.5} 
+                emissive={ring.color}
+                emissiveIntensity={0.2}
             />
         </mesh>
     );
@@ -147,13 +128,12 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const isGiant = isStar || isBlackHole;
 
   // Scaling logic for labels of massive objects
-  // Adjusted: Reduce the multiplier slightly so text doesn't fly off too far, but keep it large
   const labelDistanceFactor = isGiant && data.radius > 50 ? Math.max(100, data.radius * 2) : 50;
   const labelYOffset = isGiant && data.radius > 20 ? data.radius * 1.3 : data.radius + 3;
 
   const inclinationRad = (data.inclination || 0) * (Math.PI / 180);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!meshRef.current) return;
 
     let x = 0, z = 0;
@@ -176,6 +156,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     }
 
     // Apply Inclination logic
+    // This rotates the position around the X-axis
     const y_pos = z * Math.sin(inclinationRad);
     const z_pos = z * Math.cos(inclinationRad);
 
@@ -209,36 +190,81 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
                     <sphereGeometry args={[data.radius, 64, 64]} />
                     <meshBasicMaterial color="black" />
                 </mesh>
-                {/* Accretion Disk */}
+                {/* Accretion Disk Inner */}
                 <mesh ref={accretionRef} rotation={[Math.PI / 2.5, 0, 0]}>
-                    <ringGeometry args={[data.radius * 1.5, data.radius * 3.5, 64]} />
-                    <meshBasicMaterial color="#FF6600" transparent opacity={0.7} side={THREE.DoubleSide} />
+                    <ringGeometry args={[data.radius * 1.2, data.radius * 4, 64]} />
+                    {/* Animated distorted material for accretion disk could go here, simplifying for performance */}
+                    <meshStandardMaterial 
+                        color={new THREE.Color("#ff5500")} 
+                        emissive="#ff2200"
+                        emissiveIntensity={2}
+                        transparent 
+                        opacity={0.8} 
+                        side={THREE.DoubleSide} 
+                    />
+                </mesh>
+                 {/* Accretion Disk Outer Glow */}
+                 <mesh rotation={[Math.PI / 2.5, 0, 0]}>
+                    <ringGeometry args={[data.radius * 4, data.radius * 8, 64]} />
+                    <meshBasicMaterial color="#aa0000" transparent opacity={0.2} side={THREE.DoubleSide} />
                 </mesh>
                 {/* Glow */}
-                <pointLight intensity={3} distance={data.radius * 10} decay={2} color="#FF4500" />
+                <pointLight intensity={5} distance={data.radius * 15} decay={2} color="#FF4500" />
             </group>
         )
     }
 
+    if (isStar) {
+        return (
+            <mesh ref={planetRef} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
+                <sphereGeometry args={[data.radius, 64, 64]} />
+                {/* Animated Plasma Effect */}
+                <MeshDistortMaterial 
+                    color={data.color}
+                    emissive={data.color}
+                    emissiveIntensity={1}
+                    roughness={0.1}
+                    distort={0.3} // Strength of distortion
+                    speed={2} // Speed of animation
+                />
+                 <pointLight intensity={1.5} distance={data.radius * 5} decay={1} color={data.color} />
+            </mesh>
+        )
+    }
+
+    // Planets and others
     return (
-        <mesh 
-            ref={planetRef}
-            onPointerOver={() => setHover(true)}
-            onPointerOut={() => setHover(false)}
-            castShadow={!isStar}
-            receiveShadow={!isStar}
-        >
-            <sphereGeometry args={[data.radius, 64, 64]} />
-            {isStar ? (
-                <meshBasicMaterial color={data.color} />
-            ) : (
+        <group>
+             {/* Atmosphere Glow for larger planets */}
+             {data.radius > 1 && (
+                <mesh scale={[1.15, 1.15, 1.15]}>
+                    <sphereGeometry args={[data.radius, 32, 32]} />
+                    <meshBasicMaterial 
+                        color={data.color} 
+                        transparent 
+                        opacity={0.1} 
+                        side={THREE.BackSide}
+                    />
+                </mesh>
+            )}
+
+            <mesh 
+                ref={planetRef}
+                onPointerOver={() => setHover(true)}
+                onPointerOut={() => setHover(false)}
+                castShadow={true}
+                receiveShadow={true}
+            >
+                <sphereGeometry args={[data.radius, 64, 64]} />
                 <meshStandardMaterial 
                     color={data.color}
-                    roughness={0.8}
-                    metalness={0.2}
+                    roughness={data.type === 'planet' ? 0.7 : 0.9}
+                    metalness={data.type === 'planet' ? 0.2 : 0.1}
+                    emissive={data.color}
+                    emissiveIntensity={0.05} // Slight ambient glow so they aren't pitch black in shadow
                 />
-            )}
-        </mesh>
+            </mesh>
+        </group>
     );
   }
 
@@ -256,8 +282,8 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
       <group ref={meshRef}>
         {showTrail ? (
             <Trail
-                width={data.radius * 1.2}
-                length={12}
+                width={data.radius * 0.8}
+                length={15}
                 color={new THREE.Color(data.color)}
                 attenuation={(width) => width * 0.5}
             >
@@ -339,18 +365,33 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ sho
 
     return (
         <group>
+            {/* Main Sun Body with Distortion */}
             <mesh 
                 onPointerOver={() => setHover(true)}
                 onPointerOut={() => setHover(false)}
             >
-                <sphereGeometry args={[6, 32, 32]} />
-                <meshBasicMaterial color="#FFD700" />
+                <sphereGeometry args={[6, 64, 64]} />
+                <MeshDistortMaterial 
+                    color="#FFD700" 
+                    emissive="#FF8C00"
+                    emissiveIntensity={2}
+                    roughness={0}
+                    distort={0.4}
+                    speed={1.5}
+                />
             </mesh>
-            <pointLight intensity={3.5} distance={10000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
             
-            <mesh scale={[1.1, 1.1, 1.1]}>
+            {/* Light Source */}
+            <pointLight intensity={3} distance={15000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
+            
+            {/* Corona Glow */}
+            <mesh scale={[1.4, 1.4, 1.4]}>
                  <sphereGeometry args={[6, 32, 32]} />
-                 <meshBasicMaterial color="#FF8C00" transparent opacity={0.3} side={THREE.BackSide}/>
+                 <meshBasicMaterial color="#FF4500" transparent opacity={0.15} side={THREE.BackSide}/>
+            </mesh>
+            <mesh scale={[2, 2, 2]}>
+                 <sphereGeometry args={[6, 32, 32]} />
+                 <meshBasicMaterial color="#FF8C00" transparent opacity={0.05} side={THREE.BackSide}/>
             </mesh>
 
             {showLabels && (
