@@ -71,6 +71,33 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
     }
   }, [resetTrigger, state.viewMode]);
 
+  // Handle "Jump To" Navigation
+  useEffect(() => {
+      if (state.targetBody && controlsRef.current && cameraRef.current) {
+          const body = SOLAR_SYSTEM_DATA.find(b => b.id === state.targetBody);
+          if (body) {
+              const targetDist = body.distance;
+              // Calculate rough position (assuming roughly on X axis for simplicity of jump, users can rotate)
+              // Ideally we'd calculate exact current position but that's in child components.
+              // We'll jump to the orbital line area.
+              
+              const offset = body.radius * 4 + 10;
+              const camX = targetDist + offset;
+              const camY = body.radius * 2 + 5;
+              const camZ = offset;
+
+              // Animate smoothly (simple set for now, could be tweened)
+              controlsRef.current.object.position.set(camX, camY, camZ);
+              controlsRef.current.target.set(targetDist, 0, 0);
+              controlsRef.current.update();
+          } else if (state.targetBody === 'sun') {
+              controlsRef.current.object.position.set(20, 10, 20);
+              controlsRef.current.target.set(0, 0, 0);
+              controlsRef.current.update();
+          }
+      }
+  }, [state.targetBody]);
+
   // Keyboard and UI Navigation Logic
   useEffect(() => {
     const handleNavigation = (x: number, z: number) => {
@@ -92,7 +119,7 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
             moveVector.addScaledVector(forward, z); // "Up" on D-pad moves forward
 
             // Move both camera and target
-            const speed = 5; // Adjustment speed
+            const speed = 10; // Faster adjustment speed
             controlsRef.current.target.addScaledVector(moveVector, speed);
             cam.position.addScaledVector(moveVector, speed);
             controlsRef.current.update();
@@ -126,8 +153,8 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
 
   return (
     <>
-    <Canvas className="w-full h-full bg-black">
-      <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 60, 90]} fov={50} far={10000} />
+    <Canvas className="w-full h-full bg-black" shadows>
+      <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 60, 90]} fov={50} far={20000} near={0.1} />
       
       <OrbitControls 
         ref={controlsRef}
@@ -136,15 +163,16 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
         enableZoom={true} 
         enableRotate={true}
         enableDamping={true}
-        dampingFactor={0.1}
-        minDistance={5}
-        maxDistance={8000} // Increased significantly for supermassive objects
+        dampingFactor={0.05}
+        minDistance={2}
+        maxDistance={15000} // Increased significantly for supermassive objects
       />
 
-      <ambientLight intensity={0.2} />
+      {/* Reduced Ambient light to make shadows visible (3D effect) */}
+      <ambientLight intensity={0.05} />
       
       {/* Background Stars - Increased radius */}
-      <Stars radius={9000} depth={50} count={6000} factor={4} saturation={0} fade speed={1} />
+      <Stars radius={18000} depth={50} count={8000} factor={4} saturation={0} fade speed={1} />
 
       {state.viewMode === 'SOLAR_DETAILED' ? (
         <group>
