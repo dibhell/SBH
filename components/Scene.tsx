@@ -72,24 +72,24 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
   return (
     <>
     <Canvas className="w-full h-full bg-black">
-      <PerspectiveCamera makeDefault position={[0, 60, 90]} fov={50} />
+      <PerspectiveCamera makeDefault position={[0, 60, 90]} fov={50} far={5000} />
       
       <OrbitControls 
         ref={controlsRef}
-        makeDefault // Helps ensuring this control takes precedence
+        makeDefault
         enablePan={true} 
         enableZoom={true} 
         enableRotate={true}
-        enableDamping={true} // Smoother controls, helps prevent 'stuck' feeling
+        enableDamping={true}
         dampingFactor={0.1}
         minDistance={5}
-        maxDistance={800}
+        maxDistance={4000} // Increased to allow viewing distant giant stars
       />
 
       <ambientLight intensity={0.2} />
       
-      {/* Background Stars */}
-      <Stars radius={300} depth={50} count={6000} factor={4} saturation={0} fade speed={1} />
+      {/* Background Stars - Increased radius */}
+      <Stars radius={5000} depth={50} count={6000} factor={4} saturation={0} fade speed={1} />
 
       {state.viewMode === 'SOLAR_DETAILED' ? (
         <group>
