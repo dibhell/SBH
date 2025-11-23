@@ -19,7 +19,6 @@ declare module 'react' {
       meshBasicMaterial: any;
       pointLight: any;
       torusGeometry: any;
-      line: any;
       bufferGeometry: any;
       ambientLight: any;
     }
@@ -41,7 +40,6 @@ declare global {
       meshBasicMaterial: any;
       pointLight: any;
       torusGeometry: any;
-      line: any;
       bufferGeometry: any;
       ambientLight: any;
     }
@@ -101,12 +99,6 @@ export const SagittariusSystem: React.FC<{ timeScale: number }> = ({ timeScale }
                 >
                     Solar System
                 </Text>
-                {/* Trail/Orbit Line for Solar System */}
-                <line>
-                     <bufferGeometry>
-                        {/* Simple trail logic would go here, omitting for brevity in favor of static orbit ring below */}
-                     </bufferGeometry>
-                </line>
             </group>
         </group>
 

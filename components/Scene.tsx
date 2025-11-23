@@ -22,7 +22,6 @@ declare module 'react' {
       meshBasicMaterial: any;
       pointLight: any;
       torusGeometry: any;
-      line: any;
       bufferGeometry: any;
       ambientLight: any;
     }
@@ -44,7 +43,6 @@ declare global {
       meshBasicMaterial: any;
       pointLight: any;
       torusGeometry: any;
-      line: any;
       bufferGeometry: any;
       ambientLight: any;
     }

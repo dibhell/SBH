@@ -20,7 +20,6 @@ declare module 'react' {
       meshBasicMaterial: any;
       pointLight: any;
       torusGeometry: any;
-      line: any;
       bufferGeometry: any;
       ambientLight: any;
     }
@@ -42,7 +41,6 @@ declare global {
       meshBasicMaterial: any;
       pointLight: any;
       torusGeometry: any;
-      line: any;
       bufferGeometry: any;
       ambientLight: any;
     }
@@ -181,17 +179,17 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
         {/* Labels - Enlarged and more readable */}
         {showLabels && (
           <Html 
-            position={[0, data.radius + 2, 0]} 
+            position={[0, data.radius + 3, 0]} 
             center 
-            distanceFactor={10} 
+            distanceFactor={50} 
             style={{ pointerEvents: 'none' }}
             zIndexRange={[100, 0]}
           >
             <div className={`
-                px-3 py-1.5 rounded-md font-bold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/10 shadow-lg origin-center
+                px-4 py-2 rounded-lg font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide
                 ${hovered 
-                ? 'bg-blue-600 text-white scale-150 z-50 text-xl border-blue-300 shadow-[0_0_20px_rgba(37,99,235,0.8)]' 
-                : 'bg-black/50 text-gray-200 hover:bg-black/70 text-base md:text-lg'}
+                ? 'bg-blue-600 text-white scale-125 z-50 text-3xl border-blue-300 shadow-[0_0_30px_rgba(37,99,235,1)]' 
+                : 'bg-black/70 text-white hover:bg-black/90 text-xl'}
             `}>
               {displayName}
             </div>
