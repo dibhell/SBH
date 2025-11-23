@@ -4,7 +4,7 @@ export interface CelestialBodyData {
   namePL: string;
   description: string;
   descriptionPL: string;
-  type: 'star' | 'planet' | 'dwarf' | 'moon' | 'asteroid' | 'comet' | 'interstellar';
+  type: 'star' | 'planet' | 'dwarf' | 'moon' | 'asteroid' | 'comet' | 'interstellar' | 'blackhole';
   radius: number; // Visual scale radius
   distance: number; // Distance from parent (or Sun)
   color: string; // Material color
@@ -606,6 +606,45 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0,
     rotationSpeed: 0.0005,
   },
+  {
+    id: 'stephenson',
+    name: 'Stephenson 2-18',
+    namePL: 'Stephenson 2-18',
+    description: "Currently the largest known star in the universe. A red supergiant with a radius approx 2150 times the Sun. If placed in the Solar System, its photosphere would extend beyond the orbit of Saturn.",
+    descriptionPL: "Obecnie największa znana gwiazda we Wszechświecie. Czerwony nadolbrzym o promieniu ok. 2150 razy większym od Słońca. Gdyby znalazła się w Układzie Słonecznym, sięgałaby poza orbitę Saturna.",
+    type: 'star',
+    radius: 350, // Visual scale (compressed)
+    distance: 3800,
+    color: '#DC143C', // Crimson
+    speed: 0,
+    rotationSpeed: 0.0004,
+  },
+  {
+    id: 'sagittarius_a',
+    name: 'Sagittarius A*',
+    namePL: 'Sagittarius A*',
+    description: "The supermassive black hole at the center of the Milky Way. It has a mass of 4.3 million Suns but fits within a radius smaller than Mercury's orbit. Shown here with its glowing accretion disk.",
+    descriptionPL: "Supermasywna czarna dziura w centrum Drogi Mlecznej. Ma masę 4,3 miliona Słońc, ale mieści się w promieniu mniejszym niż orbita Merkurego. Ukazana z gorącym dyskiem akrecyjnym.",
+    type: 'blackhole',
+    radius: 80, // Event horizon * visual scale for visibility
+    distance: 4500,
+    color: '#000000', 
+    speed: 0,
+    rotationSpeed: 0.1,
+  },
+  {
+    id: 'ton_618',
+    name: 'TON 618',
+    namePL: 'TON 618',
+    description: "The largest known black hole in the universe. An ultramassive black hole with a mass of 66 billion Suns. Its event horizon is 11 times the diameter of Neptune's orbit.",
+    descriptionPL: "Największa znana czarna dziura we Wszechświecie. Ultramasywny obiekt o masie 66 miliardów Słońc. Jej horyzont zdarzeń jest 11 razy większy niż średnica orbity Neptuna.",
+    type: 'blackhole',
+    radius: 600, // Absolutely massive visual scale
+    distance: 5500,
+    color: '#000000',
+    speed: 0,
+    rotationSpeed: 0.05,
+  }
 ];
 
 export const SUN_DATA = {
