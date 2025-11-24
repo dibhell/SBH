@@ -1,5 +1,3 @@
-
-
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { GALAXY_DATA } from '../constants';
@@ -23,6 +21,8 @@ declare module 'react' {
       torusGeometry: any;
       bufferGeometry: any;
       ambientLight: any;
+      coneGeometry: any;
+      cylinderGeometry: any;
     }
   }
 }
@@ -44,6 +44,8 @@ declare global {
       torusGeometry: any;
       bufferGeometry: any;
       ambientLight: any;
+      coneGeometry: any;
+      cylinderGeometry: any;
     }
   }
 }

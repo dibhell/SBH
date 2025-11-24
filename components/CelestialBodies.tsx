@@ -25,6 +25,9 @@ declare module 'react' {
       meshDistortMaterial: any;
       points: any;
       pointsMaterial: any;
+      coneGeometry: any;
+      cylinderGeometry: any;
+      bufferAttribute: any;
       // line: any; // Removed to avoid conflict with SVG line type
     }
   }
