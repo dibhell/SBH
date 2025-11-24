@@ -1,6 +1,4 @@
 
-
-
 import React from 'react';
 import { AppState } from '../types';
 import { Play, Clock, Info, Languages, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, MousePointer2 } from 'lucide-react';
@@ -21,6 +19,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
   };
 
   const handleJumpTo = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      if (!e || !e.target) return;
       const val = e.target.value;
       if (val) {
           onStateChange({ targetBody: val });
@@ -178,7 +177,11 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
                 step="0.5"
                 value={state.timeScale}
                 disabled={state.isRealTime}
-                onChange={(e) => onStateChange({ timeScale: parseFloat(e.target.value) })}
+                onChange={(e) => {
+                    if (e && e.target) {
+                        onStateChange({ timeScale: parseFloat(e.target.value) });
+                    }
+                }}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 disabled:opacity-50"
               />
             </div>
