@@ -139,6 +139,34 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.094,
     argumentOfPeriapsis: 286,
     orbitColor: '#733',
+    moons: [
+      {
+        id: 'phobos',
+        name: 'Phobos',
+        namePL: 'Fobos',
+        description: "The larger and inner of Mars's two moons. It orbits so close to the planet that it rises in the west and sets in the east twice a day. It is slowly spiraling inward.",
+        descriptionPL: "Większy i bliższy z dwóch księżyców Marsa. Krąży tak blisko planety, że wschodzi na zachodzie i zachodzi na wschodzie dwa razy dziennie. Powoli opada ku powierzchni Marsa.",
+        type: 'moon',
+        radius: 0.15, // Visual scale min
+        distance: 1.8,
+        color: '#8e7c75',
+        speed: 15,
+        rotationSpeed: 0.05
+      },
+      {
+        id: 'deimos',
+        name: 'Deimos',
+        namePL: 'Deimos',
+        description: "The smaller outer moon of Mars. It is likely a captured asteroid. Its orbit is slowly getting larger, drifting away from Mars.",
+        descriptionPL: "Mniejszy, zewnętrzny księżyc Marsa. Prawdopodobnie jest przechwyconą asteroidą. Jego orbita powoli się powiększa, oddalając go od Marsa.",
+        type: 'moon',
+        radius: 0.12, // Visual scale min
+        distance: 2.8,
+        color: '#a89f91',
+        speed: 10,
+        rotationSpeed: 0.05
+      }
+    ]
   },
   // Asteroid Belt Objects
   {
@@ -413,6 +441,47 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.248, // HIGH ECCENTRICITY
     argumentOfPeriapsis: 113,
     orbitColor: '#444',
+    moons: [
+        {
+            id: 'charon',
+            name: 'Charon',
+            namePL: 'Charon',
+            description: "Pluto's largest moon, so big that they orbit a common center of gravity outside of Pluto. They are tidally locked, always facing each other.",
+            descriptionPL: "Największy księżyc Plutona, tak duży, że oba obiekty krążą wokół wspólnego środka ciężkości poza Plutonem. Są zablokowane pływowo, zawsze zwrócone do siebie tymi samymi stronami.",
+            type: 'moon',
+            radius: 0.2,
+            distance: 2.5,
+            color: '#888888',
+            speed: 6,
+            rotationSpeed: 0
+        },
+        {
+            id: 'nix',
+            name: 'Nix',
+            namePL: 'Nix',
+            description: "A small, chaotic moon of Pluto.",
+            descriptionPL: "Mały, chaotyczny księżyc Plutona.",
+            type: 'moon',
+            radius: 0.08,
+            distance: 3.5,
+            color: '#777',
+            speed: 5,
+            rotationSpeed: 0.1
+        },
+        {
+            id: 'hydra',
+            name: 'Hydra',
+            namePL: 'Hydra',
+            description: "The outermost known moon of Pluto.",
+            descriptionPL: "Najdalszy znany księżyc Plutona.",
+            type: 'moon',
+            radius: 0.09,
+            distance: 4.2,
+            color: '#777',
+            speed: 4,
+            rotationSpeed: 0.1
+        }
+    ]
   },
   {
     id: 'oumuamua',
@@ -447,6 +516,34 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.19,
     argumentOfPeriapsis: 240,
     orbitColor: '#333',
+    moons: [
+        {
+            id: 'hiiaka',
+            name: "Hi'iaka",
+            namePL: "Hi'iaka",
+            description: "The larger, outer moon of Haumea.",
+            descriptionPL: "Większy, zewnętrzny księżyc Haumei.",
+            type: 'moon',
+            radius: 0.1,
+            distance: 2.0,
+            color: '#aaa',
+            speed: 5,
+            rotationSpeed: 0.05
+        },
+        {
+            id: 'namaka',
+            name: "Namaka",
+            namePL: "Namaka",
+            description: "The smaller, inner moon of Haumea.",
+            descriptionPL: "Mniejszy, wewnętrzny księżyc Haumei.",
+            type: 'moon',
+            radius: 0.08,
+            distance: 1.4,
+            color: '#999',
+            speed: 8,
+            rotationSpeed: 0.05
+        }
+    ]
   },
   {
     id: 'quaoar',
@@ -464,6 +561,21 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.038,
     argumentOfPeriapsis: 150,
     orbitColor: '#333',
+    moons: [
+        {
+            id: 'weywot',
+            name: 'Weywot',
+            namePL: 'Weywot',
+            description: "The only known moon of Quaoar.",
+            descriptionPL: "Jedyny znany księżyc Quaoara.",
+            type: 'moon',
+            radius: 0.08,
+            distance: 1.8,
+            color: '#775544',
+            speed: 4,
+            rotationSpeed: 0.02
+        }
+    ]
   },
   {
     id: 'varuna',
@@ -497,6 +609,21 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.15,
     argumentOfPeriapsis: 295,
     orbitColor: '#333',
+    moons: [
+        {
+            id: 'mk2',
+            name: 'MK2',
+            namePL: 'MK2',
+            description: "S/2015 (136472) 1, nicknamed MK2. A small, dark moon orbiting Makemake.",
+            descriptionPL: "S/2015 (136472) 1, pieszczotliwie MK2. Mały, ciemny księżyc krążący wokół Makemake.",
+            type: 'moon',
+            radius: 0.08,
+            distance: 2.5,
+            color: '#222',
+            speed: 3,
+            rotationSpeed: 0.02
+        }
+    ]
   },
   {
     id: 'salacia',
@@ -513,6 +640,21 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     inclination: 23.9,
     eccentricity: 0.1,
     orbitColor: '#333',
+    moons: [
+        {
+            id: 'actaea',
+            name: 'Actaea',
+            namePL: 'Actaea',
+            description: "The moon of Salacia.",
+            descriptionPL: "Księżyc Salacii.",
+            type: 'moon',
+            radius: 0.1,
+            distance: 2.2,
+            color: '#446666',
+            speed: 4,
+            rotationSpeed: 0.02
+        }
+    ]
   },
   {
     id: 'eris',
@@ -530,6 +672,21 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.44, // HIGH ECCENTRICITY
     argumentOfPeriapsis: 151,
     orbitColor: '#333',
+    moons: [
+        {
+            id: 'dysnomia',
+            name: 'Dysnomia',
+            namePL: 'Dysnomia',
+            description: "The moon of Eris. Named after the goddess of lawlessness.",
+            descriptionPL: "Księżyc Eris. Nazwany na cześć bogini bezprawia.",
+            type: 'moon',
+            radius: 0.12,
+            distance: 2.2,
+            color: '#ddd',
+            speed: 5,
+            rotationSpeed: 0.02
+        }
+    ]
   },
   {
     id: 'orcus',
@@ -547,6 +704,21 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.22,
     argumentOfPeriapsis: 300,
     orbitColor: '#444',
+    moons: [
+        {
+            id: 'vanth',
+            name: 'Vanth',
+            namePL: 'Vanth',
+            description: "The large moon of Orcus.",
+            descriptionPL: "Duży księżyc Orkusa.",
+            type: 'moon',
+            radius: 0.15,
+            distance: 2.0,
+            color: '#667788',
+            speed: 6,
+            rotationSpeed: 0.02
+        }
+    ]
   },
   {
     id: 'gonggong',
@@ -564,6 +736,21 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.5, // VERY HIGH
     argumentOfPeriapsis: 330,
     orbitColor: '#333',
+    moons: [
+        {
+            id: 'xiangliu',
+            name: 'Xiangliu',
+            namePL: 'Xiangliu',
+            description: "The moon of Gonggong.",
+            descriptionPL: "Księżyc Gonggonga.",
+            type: 'moon',
+            radius: 0.08,
+            distance: 2.0,
+            color: '#882222',
+            speed: 4,
+            rotationSpeed: 0.02
+        }
+    ]
   },
   {
     id: 'sedna',
@@ -742,10 +929,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
 export const SUN_DATA = {
     name: 'Sun',
     namePL: 'Słońce',
-    description: "The Star at the center of our Solar System. It orbits the Galactic Center (Sagittarius A*) every 230 million years. Locally, it also wobbles around the Solar System Barycenter due to Jupiter's gravity.",
-    descriptionPL: "Gwiazda w centrum układu. Krąży wokół Centrum Galaktyki (Sagittarius A*) z okresem 230 mln lat. Lokalnie 'tańczy' też wokół Barycentrum pod wpływem grawitacji Jowisza.",
-    barycentricRadius: 14, // Increased significantly so it's clearly visible outside the Sun mesh
-    wobbleSpeed: 0.15, // Faster wobble for visual effect
+    description: "The Star at the center of our Solar System. It orbits the Galactic Center (Sagittarius A*) every 230 million years. Gravity binds the solar system together.",
+    descriptionPL: "Gwiazda w centrum układu. Krąży wokół Centrum Galaktyki (Sagittarius A*) z okresem 230 mln lat. Grawitacja Słońca spaja cały układ słoneczny.",
+    barycentricRadius: 0, // Reset to 0 for standard Heliocentric view
+    wobbleSpeed: 0.15, 
 }
 
 export const GALAXY_DATA = {
