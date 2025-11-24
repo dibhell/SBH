@@ -1,5 +1,6 @@
 
 
+
 export interface CelestialBodyData {
   id: string;
   name: string;
@@ -286,8 +287,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         id: 'europa', 
         name: 'Europa', 
         namePL: 'Europa', 
-        description: "Covered in a shell of water ice, Europa likely harbors a subsurface saltwater ocean containing twice as much water as Earth. It is a prime candidate for finding extraterrestrial life.", 
-        descriptionPL: "Pokryta skorupą lodu wodnego, prawdopodobnie ukrywa podpowierzchniowy ocean słonej wody, zawierający jej dwa razy więcej niż Ziemia. Główny kandydat do poszukiwania życia pozaziemskiego.", 
+        description: "Covered in a shell of water ice, Europa likely harbors a subsurface ocean. It is a prime candidate for finding extraterrestrial life.", 
+        descriptionPL: "Pokryta skorupą lodu wodnego, prawdopodobnie ukrywa podpowierzchniowy ocean. Główny kandydat do poszukiwania życia pozaziemskiego.", 
         type: 'moon', 
         radius: 0.45, 
         distance: 7.5, 
@@ -312,8 +313,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         id: 'callisto', 
         name: 'Callisto', 
         namePL: 'Kallisto', 
-        description: "Its heavily cratered surface is incredibly old and has remained unchanged for billions of years. It is the most battered object in the Solar System.", 
-        descriptionPL: "Jego mocno pokraterowana powierzchnia jest niezwykle stara i nie zmieniła się od miliardów lat. To najbardziej poobijany obiekt w Układzie Słonecznym.", 
+        description: "Its heavily cratered surface is incredibly old and has remained unchanged for billions of years.", 
+        descriptionPL: "Jego mocno pokraterowana powierzchnia jest niezwykle stara i nie zmieniła się od miliardów lat.", 
         type: 'moon', 
         radius: 0.58, 
         distance: 11.5, 
@@ -358,8 +359,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         id: 'enceladus', 
         name: 'Enceladus', 
         namePL: 'Enceladus', 
-        description: "An icy moon that ejects distinct plumes of water vapor and ice from 'tiger stripe' fissures at its south pole, indicating a subsurface ocean.", 
-        descriptionPL: "Lodowy księżyc wyrzucający pióropusze pary wodnej i lodu ze szczelin na biegunie południowym, co wskazuje na istnienie podpowierzchniowego oceanu.", 
+        description: "An icy moon that ejects distinct plumes of water vapor and ice from 'tiger stripe' fissures at its south pole.", 
+        descriptionPL: "Lodowy księżyc wyrzucający pióropusze pary wodnej i lodu ze szczelin na biegunie południowym.", 
         type: 'moon', 
         radius: 0.3, 
         distance: 6, 
@@ -386,11 +387,11 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     argumentOfPeriapsis: 96,
     orbitColor: '#256',
     moons: [
-       { id: 'miranda', name: 'Miranda', namePL: 'Miranda', description: "Features a strange, jigsaw-puzzle landscape with giant canyons (verona Rupes) and patchwork terrain.", descriptionPL: "Posiada dziwny krajobraz przypominający puzzle, z gigantycznymi kanionami (Verona Rupes) i pofałdowanym terenem.", type: 'moon', radius: 0.2, distance: 3.5, color: '#E0E0E0', speed: 6, rotationSpeed: 0.02 },
-       { id: 'ariel', name: 'Ariel', namePL: 'Ariel', description: "Likely has the youngest surface of Uranus' moons, indicating recent geologic activity reshaping its crust.", descriptionPL: "Prawdopodobnie ma najmłodszą powierzchnię wśród księżyców Urana, co wskazuje na niedawną aktywność geologiczną.", type: 'moon', radius: 0.3, distance: 4.5, color: '#D3D3D3', speed: 5, rotationSpeed: 0.02 },
-       { id: 'umbriel', name: 'Umbriel', namePL: 'Umbriel', description: "A dark, mysterious moon characterized by a bright ring of deposits inside the Wunda crater.", descriptionPL: "Ciemny, tajemniczy księżyc, charakteryzujący się jasnym pierścieniem osadów wewnątrz krateru Wunda.", type: 'moon', radius: 0.3, distance: 5.5, color: '#A9A9A9', speed: 4.5, rotationSpeed: 0.02 },
-       { id: 'titania', name: 'Titania', namePL: 'Tytania', description: "The largest moon of Uranus, composed of equal parts ice and rock. Its surface is cut by massive fault lines.", descriptionPL: "Największy księżyc Urana, złożony w równych częściach z lodu i skał. Jego powierzchnię przecinają potężne uskoki.", type: 'moon', radius: 0.4, distance: 7.0, color: '#C0C0C0', speed: 3.5, rotationSpeed: 0.02 },
-       { id: 'oberon', name: 'Oberon', namePL: 'Oberon', description: "The outermost major moon, heavily cratered and showing little sign of internal activity compared to the others.", descriptionPL: "Najdalszy główny księżyc, mocno pokraterowany i wykazujący niewiele oznak aktywności wewnętrznej w porównaniu do innych.", type: 'moon', radius: 0.38, distance: 8.5, color: '#B0B0B0', speed: 3, rotationSpeed: 0.02 },
+       { id: 'miranda', name: 'Miranda', namePL: 'Miranda', description: "Features a strange, jigsaw-puzzle landscape.", descriptionPL: "Posiada dziwny krajobraz przypominający puzzle.", type: 'moon', radius: 0.2, distance: 3.5, color: '#E0E0E0', speed: 6, rotationSpeed: 0.02 },
+       { id: 'ariel', name: 'Ariel', namePL: 'Ariel', description: "Likely has the youngest surface of Uranus' moons.", descriptionPL: "Prawdopodobnie ma najmłodszą powierzchnię wśród księżyców Urana.", type: 'moon', radius: 0.3, distance: 4.5, color: '#D3D3D3', speed: 5, rotationSpeed: 0.02 },
+       { id: 'umbriel', name: 'Umbriel', namePL: 'Umbriel', description: "A dark, mysterious moon.", descriptionPL: "Ciemny, tajemniczy księżyc.", type: 'moon', radius: 0.3, distance: 5.5, color: '#A9A9A9', speed: 4.5, rotationSpeed: 0.02 },
+       { id: 'titania', name: 'Titania', namePL: 'Tytania', description: "The largest moon of Uranus.", descriptionPL: "Największy księżyc Urana.", type: 'moon', radius: 0.4, distance: 7.0, color: '#C0C0C0', speed: 3.5, rotationSpeed: 0.02 },
+       { id: 'oberon', name: 'Oberon', namePL: 'Oberon', description: "The outermost major moon, heavily cratered.", descriptionPL: "Najdalszy główny księżyc, mocno pokraterowany.", type: 'moon', radius: 0.38, distance: 8.5, color: '#B0B0B0', speed: 3, rotationSpeed: 0.02 },
     ]
   },
   {
@@ -446,8 +447,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
             id: 'charon',
             name: 'Charon',
             namePL: 'Charon',
-            description: "Pluto's largest moon, so big that they orbit a common center of gravity outside of Pluto. They are tidally locked, always facing each other.",
-            descriptionPL: "Największy księżyc Plutona, tak duży, że oba obiekty krążą wokół wspólnego środka ciężkości poza Plutonem. Są zablokowane pływowo, zawsze zwrócone do siebie tymi samymi stronami.",
+            description: "Pluto's largest moon.",
+            descriptionPL: "Największy księżyc Plutona.",
             type: 'moon',
             radius: 0.2,
             distance: 2.5,
@@ -459,8 +460,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
             id: 'nix',
             name: 'Nix',
             namePL: 'Nix',
-            description: "A small, chaotic moon of Pluto.",
-            descriptionPL: "Mały, chaotyczny księżyc Plutona.",
+            description: "A small moon of Pluto.",
+            descriptionPL: "Mały księżyc Plutona.",
             type: 'moon',
             radius: 0.08,
             distance: 3.5,
@@ -472,8 +473,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
             id: 'hydra',
             name: 'Hydra',
             namePL: 'Hydra',
-            description: "The outermost known moon of Pluto.",
-            descriptionPL: "Najdalszy znany księżyc Plutona.",
+            description: "The outermost moon of Pluto.",
+            descriptionPL: "Najdalszy księżyc Plutona.",
             type: 'moon',
             radius: 0.09,
             distance: 4.2,
@@ -614,8 +615,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
             id: 'mk2',
             name: 'MK2',
             namePL: 'MK2',
-            description: "S/2015 (136472) 1, nicknamed MK2. A small, dark moon orbiting Makemake.",
-            descriptionPL: "S/2015 (136472) 1, pieszczotliwie MK2. Mały, ciemny księżyc krążący wokół Makemake.",
+            description: "A small, dark moon orbiting Makemake.",
+            descriptionPL: "Mały, ciemny księżyc krążący wokół Makemake.",
             type: 'moon',
             radius: 0.08,
             distance: 2.5,
@@ -629,8 +630,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     id: 'salacia',
     name: 'Salacia',
     namePL: 'Salacia',
-    description: "A large object in the Kuiper Belt orbiting with a companion moon, Actaea. It has a very dark surface, reflecting only about 3-4% of sunlight.",
-    descriptionPL: "Duży obiekt w Pasie Kuipera orbitujący z księżycem Actaea. Ma bardzo ciemną powierzchnię, odbijającą tylko około 3-4% światła słonecznego.",
+    description: "A large object in the Kuiper Belt orbiting with a companion moon, Actaea. It has a very dark surface.",
+    descriptionPL: "Duży obiekt w Pasie Kuipera orbitujący z księżycem Actaea. Ma bardzo ciemną powierzchnię.",
     type: 'dwarf',
     radius: 0.3,
     distance: 280,
@@ -672,31 +673,16 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.44, // HIGH ECCENTRICITY
     argumentOfPeriapsis: 151,
     orbitColor: '#333',
-    moons: [
-        {
-            id: 'dysnomia',
-            name: 'Dysnomia',
-            namePL: 'Dysnomia',
-            description: "The moon of Eris. Named after the goddess of lawlessness.",
-            descriptionPL: "Księżyc Eris. Nazwany na cześć bogini bezprawia.",
-            type: 'moon',
-            radius: 0.12,
-            distance: 2.2,
-            color: '#ddd',
-            speed: 5,
-            rotationSpeed: 0.02
-        }
-    ]
   },
   {
     id: 'orcus',
     name: 'Orcus',
     namePL: 'Orkus',
-    description: "Called the 'anti-Pluto' because it shares the same orbital period but is always on the opposite side of the Sun. It has a large moon named Vanth.",
-    descriptionPL: "Nazywany 'anty-Plutonem', ponieważ ma ten sam okres orbitalny, ale zawsze znajduje się po przeciwnej stronie Słońca. Posiada dużego księżyca o nazwie Vanth.",
+    description: "Called the 'anti-Pluto' because it shares the same orbital period but is always on the opposite side of the Sun.",
+    descriptionPL: "Nazywany 'anty-Plutonem', ponieważ ma ten sam okres orbitalny, ale zawsze znajduje się po przeciwnej stronie Słońca.",
     type: 'dwarf',
     radius: 0.35,
-    distance: 250, // Anti-Pluto, but placed further in list for render order
+    distance: 250, // Anti-Pluto
     color: '#778899',
     speed: 0.004,
     rotationSpeed: 0.02,
@@ -724,8 +710,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     id: 'gonggong',
     name: 'Gonggong',
     namePL: 'Gonggong',
-    description: "A red dwarf planet with a highly elliptical orbit. Named after a Chinese water god responsible for floods and chaos. It is likely covered in tholins.",
-    descriptionPL: "Czerwona planeta karłowata o silnie eliptycznej orbicie. Nazwana na cześć chińskiego boga wody odpowiedzialnego za powodzie i chaos. Prawdopodobnie pokryta tholinami.",
+    description: "A red dwarf planet with a highly elliptical orbit. Named after a Chinese water god responsible for floods and chaos.",
+    descriptionPL: "Czerwona planeta karłowata o silnie eliptycznej orbicie. Nazwana na cześć chińskiego boga wody odpowiedzialnego za powodzie i chaos.",
     type: 'dwarf',
     radius: 0.38,
     distance: 310,
@@ -756,8 +742,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     id: 'sedna',
     name: 'Sedna',
     namePL: 'Sedna',
-    description: "The furthest known dwarf planet candidate. It takes 11,400 years to orbit the Sun. Its orbit lies well beyond the Kuiper Belt, in a region known as the scattered disc.",
-    descriptionPL: "Najdalszy znany kandydat na planetę karłowatą. Obieg Słońca zajmuje jej 11 400 lat. Jej orbita leży daleko poza Pasem Kuipera, w regionie zwanym dyskiem rozproszonym.",
+    description: "The furthest known dwarf planet candidate. It takes 11,400 years to orbit the Sun. Its orbit lies well beyond the Kuiper Belt.",
+    descriptionPL: "Najdalszy znany kandydat na planetę karłowata. Obieg Słońca zajmuje jej 11 400 lat. Jej orbita leży daleko poza Pasem Kuipera.",
     type: 'dwarf',
     radius: 0.38,
     distance: 380, // Very far
@@ -931,8 +917,8 @@ export const SUN_DATA = {
     namePL: 'Słońce',
     description: "The Star at the center of our Solar System. It orbits the Galactic Center (Sagittarius A*) every 230 million years. Gravity binds the solar system together.",
     descriptionPL: "Gwiazda w centrum układu. Krąży wokół Centrum Galaktyki (Sagittarius A*) z okresem 230 mln lat. Grawitacja Słońca spaja cały układ słoneczny.",
-    barycentricRadius: 0, // Reset to 0 for standard Heliocentric view
-    wobbleSpeed: 0.15, 
+    barycentricRadius: 4, // Visible wobble radius
+    wobbleSpeed: 0.08, // Synchronized with Jupiter's orbital speed
 }
 
 export const GALAXY_DATA = {
@@ -958,6 +944,8 @@ export const UI_TRANSLATIONS = {
     resetCam: "Reset Camera",
     speed: "Speed",
     labels: "Labels",
+    giantObjects: "Giant Objects",
+    starDust: "Star Dust",
     realTime: "Set Real-Time",
     realTimeActive: "Real-Time (J2000) Active",
     jumpTo: "Jump to Object..."
@@ -978,6 +966,8 @@ export const UI_TRANSLATIONS = {
     resetCam: "Reset Kamery",
     speed: "Prędkość",
     labels: "Etykiety",
+    giantObjects: "Wielkie Obiekty",
+    starDust: "Gwiezdny Pył",
     realTime: "Tryb Rzeczywisty",
     realTimeActive: "Czas Rzeczywisty (J2000)",
     jumpTo: "Idź do obiektu..."
