@@ -1,3 +1,4 @@
+
 export type ViewMode = 'SOLAR_DETAILED' | 'SAGITTARIUS_A';
 export type Language = 'PL' | 'EN';
 
@@ -8,4 +9,6 @@ export interface AppState {
   showLabels: boolean;
   language: Language;
   targetBody: string | null; // For navigation jump
+  showGiantObjects: boolean;
+  showStarDust: boolean;
 }
