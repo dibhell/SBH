@@ -1,3 +1,4 @@
+
 import React, { useRef, useMemo, useState, useLayoutEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Html, Trail, MeshDistortMaterial, Text } from '@react-three/drei';
@@ -564,7 +565,7 @@ const InterstellarStream = () => {
     );
 };
 
-export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale: number; isRealTime: boolean }> = ({ showLabels, language, timeScale, isRealTime }) => {
+export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale: number; isRealTime: boolean; showStarDust: boolean }> = ({ showLabels, language, timeScale, isRealTime, showStarDust }) => {
     const [hovered, setHover] = useState(false);
     const displayName = language === 'PL' ? SUN_DATA.namePL : SUN_DATA.name;
     const description = language === 'PL' ? SUN_DATA.descriptionPL : SUN_DATA.description;
@@ -628,7 +629,9 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
 
              {/* Galactic Context - Fixed relative to Barycenter */}
              <GalacticTrajectory language={language} />
-             <InterstellarStream />
+             
+             {/* Star Dust / Interstellar Stream */}
+             {showStarDust && <InterstellarStream />}
 
             <group ref={sunGroupRef}>
                 
