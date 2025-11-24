@@ -88,13 +88,17 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
               const camZ = offset;
 
               // Animate smoothly (simple set for now, could be tweened)
-              controlsRef.current.object.position.set(camX, camY, camZ);
-              controlsRef.current.target.set(targetDist, 0, 0);
-              controlsRef.current.update();
+              if (controlsRef.current.object && controlsRef.current.target) {
+                  controlsRef.current.object.position.set(camX, camY, camZ);
+                  controlsRef.current.target.set(targetDist, 0, 0);
+                  controlsRef.current.update();
+              }
           } else if (state.targetBody === 'sun') {
-              controlsRef.current.object.position.set(20, 10, 20);
-              controlsRef.current.target.set(0, 0, 0);
-              controlsRef.current.update();
+              if (controlsRef.current.object && controlsRef.current.target) {
+                  controlsRef.current.object.position.set(20, 10, 20);
+                  controlsRef.current.target.set(0, 0, 0);
+                  controlsRef.current.update();
+              }
           }
       }
   }, [state.targetBody]);
@@ -121,7 +125,9 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
 
             // Move both camera and target
             const speed = 10; // Faster adjustment speed
-            controlsRef.current.target.addScaledVector(moveVector, speed);
+            if (controlsRef.current.target) {
+                controlsRef.current.target.addScaledVector(moveVector, speed);
+            }
             cam.position.addScaledVector(moveVector, speed);
             controlsRef.current.update();
         }
@@ -137,7 +143,8 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
     };
 
     const handleCustomEvent = (e: Event) => {
-        const detail = (e as CustomEvent).detail;
+        // Safe cast and check
+        const detail = (e as CustomEvent)?.detail;
         if (detail) {
             handleNavigation(detail.x, detail.y);
         }
