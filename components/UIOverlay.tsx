@@ -1,3 +1,6 @@
+
+
+
 import React from 'react';
 import { AppState } from '../types';
 import { Play, Clock, Info, Languages, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, MousePointer2 } from 'lucide-react';
@@ -23,6 +26,12 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
           onStateChange({ targetBody: val });
       }
   };
+
+  // Filter objects for the dropdown
+  const jumpableObjects = SOLAR_SYSTEM_DATA.filter(b => {
+      if (!state.showGiantObjects && (b.type === 'star' || b.type === 'blackhole')) return false;
+      return true;
+  });
 
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-10">
@@ -78,10 +87,10 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
                         onChange={handleJumpTo}
                         value={state.targetBody || ""}
                     >
-                        <option value="" disabled>{t.jumpTo}</option>
-                        <option value="sun">{state.language === 'PL' ? SUN_DATA.namePL : SUN_DATA.name}</option>
-                        {SOLAR_SYSTEM_DATA.map(b => (
-                            <option key={b.id} value={b.id}>
+                        <option value="" disabled className="bg-gray-900 text-white">{t.jumpTo}</option>
+                        <option value="sun" className="bg-gray-900 text-white">{state.language === 'PL' ? SUN_DATA.namePL : SUN_DATA.name}</option>
+                        {jumpableObjects.map(b => (
+                            <option key={b.id} value={b.id} className="bg-gray-900 text-white">
                                 {state.language === 'PL' ? b.namePL : b.name}
                             </option>
                         ))}
@@ -174,14 +183,35 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
               />
             </div>
 
-            <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-400">{t.labels}</span>
-                <button
-                    onClick={() => onStateChange({ showLabels: !state.showLabels })}
-                    className={`w-10 h-5 rounded-full relative transition-colors ${state.showLabels ? 'bg-green-500' : 'bg-gray-600'}`}
-                >
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${state.showLabels ? 'left-6' : 'left-1'}`} />
-                </button>
+            {/* Toggles Grid */}
+            <div className="grid grid-cols-1 gap-3">
+                <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">{t.labels}</span>
+                    <button
+                        onClick={() => onStateChange({ showLabels: !state.showLabels })}
+                        className={`w-10 h-5 rounded-full relative transition-colors ${state.showLabels ? 'bg-green-500' : 'bg-gray-600'}`}
+                    >
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${state.showLabels ? 'left-6' : 'left-1'}`} />
+                    </button>
+                </div>
+                <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">{t.giantObjects}</span>
+                    <button
+                        onClick={() => onStateChange({ showGiantObjects: !state.showGiantObjects })}
+                        className={`w-10 h-5 rounded-full relative transition-colors ${state.showGiantObjects ? 'bg-green-500' : 'bg-gray-600'}`}
+                    >
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${state.showGiantObjects ? 'left-6' : 'left-1'}`} />
+                    </button>
+                </div>
+                <div className="flex justify-between items-center">
+                    <span className="text-xs text-gray-400">{t.starDust}</span>
+                    <button
+                        onClick={() => onStateChange({ showStarDust: !state.showStarDust })}
+                        className={`w-10 h-5 rounded-full relative transition-colors ${state.showStarDust ? 'bg-green-500' : 'bg-gray-600'}`}
+                    >
+                        <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${state.showStarDust ? 'left-6' : 'left-1'}`} />
+                    </button>
+                </div>
             </div>
 
             <button
