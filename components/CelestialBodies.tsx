@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useLayoutEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html, Trail, MeshDistortMaterial } from '@react-three/drei';
+import { Html, Trail, MeshDistortMaterial, Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { CelestialBodyData, SUN_DATA } from '../constants';
 import { Language } from '../types';
@@ -22,10 +22,16 @@ declare module 'react' {
       torusGeometry: any;
       bufferGeometry: any;
       ambientLight: any;
-      meshDistortMaterial: any; // Add this for the new star material
+      meshDistortMaterial: any;
+      points: any;
+      pointsMaterial: any;
+      // line: any; // Removed to avoid conflict with SVG line type
     }
   }
 }
+
+// Helper to bypass TS conflict with SVG <line>
+const ThreeLine = 'line' as any;
 
 interface BodyProps {
   data: CelestialBodyData;
@@ -35,21 +41,60 @@ interface BodyProps {
   language: Language;
 }
 
-const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; inclination: number }> = ({ radius, color = '#444', dashed = false, inclination }) => {
+interface OrbitLineProps {
+    radius: number;
+    color?: string;
+    dashed?: boolean;
+    inclination: number;
+    eccentricity?: number;
+    argumentOfPeriapsis?: number;
+    opacity?: number;
+}
+
+const OrbitLine: React.FC<OrbitLineProps> = ({ 
+    radius, 
+    color = '#444', 
+    dashed = false, 
+    inclination,
+    eccentricity = 0,
+    argumentOfPeriapsis = 0,
+    opacity = 0.3 // Default opacity
+}) => {
   const points = useMemo(() => {
     const pts = [];
-    const segments = 128;
-    for (let i = 0; i < segments; i++) {
+    const segments = 256; // Smoother lines
+    // a = semi-major axis (radius)
+    // e = eccentricity
+    const a = radius;
+    const e = eccentricity;
+    
+    // Rotation for argument of periapsis
+    const omega = (argumentOfPeriapsis * Math.PI) / 180;
+
+    for (let i = 0; i <= segments; i++) {
       const theta = (i / segments) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(theta) * radius, 0, Math.sin(theta) * radius));
+      
+      // Polar equation of an ellipse relative to focus (Sun)
+      // r = a(1-e^2) / (1 + e*cos(theta))
+      const r = (a * (1 - e * e)) / (1 + e * Math.cos(theta));
+      
+      // Convert to Cartesian
+      const x = r * Math.cos(theta);
+      const z = r * Math.sin(theta);
+
+      // Rotate by argument of periapsis (in the XZ plane)
+      const xRot = x * Math.cos(omega) - z * Math.sin(omega);
+      const zRot = x * Math.sin(omega) + z * Math.cos(omega);
+
+      pts.push(new THREE.Vector3(xRot, 0, zRot));
     }
     return pts;
-  }, [radius]);
+  }, [radius, eccentricity, argumentOfPeriapsis]);
 
   const lineGeometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
   const lineRef = useRef<THREE.LineLoop>(null);
 
-  // FIX: Rotation must be around X axis to match planet inclination math (y = z * sin(inc))
+  // Inclination rotation around X axis
   const rotationEuler = useMemo(() => {
       const rad = (inclination * Math.PI) / 180;
       return new THREE.Euler(rad, 0, 0); 
@@ -69,7 +114,7 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; in
             attach="material" 
             color={color} 
             transparent 
-            opacity={0.3} 
+            opacity={opacity} 
             dashSize={1} 
             gapSize={1} 
             />
@@ -78,7 +123,7 @@ const OrbitLine: React.FC<{ radius: number; color?: string; dashed?: boolean; in
             attach="material" 
             color={color} 
             transparent 
-            opacity={0.2} 
+            opacity={opacity} 
             />
         )}
         </lineLoop>
@@ -94,7 +139,7 @@ const PlanetRing: React.FC<{ ring: NonNullable<CelestialBodyData['ring']> }> = (
                 color={ring.color} 
                 side={THREE.DoubleSide} 
                 transparent 
-                opacity={0.5} 
+                opacity={0.6} 
                 emissive={ring.color}
                 emissiveIntensity={0.2}
             />
@@ -118,9 +163,8 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const planetRef = useRef<THREE.Mesh>(null);
   const accretionRef = useRef<THREE.Mesh>(null);
   
-  // Random start angle
-  const startAngle = useMemo(() => (data.name.length * 13) % 360, [data.name]); 
-  const angleRef = useRef(startAngle);
+  // Angle state
+  const angleRef = useRef(Math.random() * Math.PI * 2);
 
   const isSmallBody = ['dwarf', 'asteroid', 'comet', 'interstellar'].includes(data.type);
   const isStar = data.type === 'star';
@@ -132,36 +176,55 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const labelYOffset = isGiant && data.radius > 20 ? data.radius * 1.3 : data.radius + 3;
 
   const inclinationRad = (data.inclination || 0) * (Math.PI / 180);
+  const eccentricity = data.eccentricity || 0;
+  const omega = ((data.argumentOfPeriapsis || 0) * Math.PI) / 180;
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
 
-    let x = 0, z = 0;
-
+    // Calculate Angle (True Anomaly approx)
+    let currentAngle = 0;
+    
     if (isRealTime) {
       if (data.speed === 0) {
-         x = data.distance;
-         z = 0;
+         currentAngle = 0;
       } else {
         const now = Date.now() / 1000;
-        const orbitalPeriodSeconds = 365.25 * 24 * 3600 / data.speed;
-        const currentAngle = (now / orbitalPeriodSeconds) * Math.PI * 2;
-        x = Math.cos(currentAngle) * data.distance;
-        z = Math.sin(currentAngle) * data.distance;
+        const orbitalPeriodSeconds = 365.25 * 24 * 3600 / (data.speed || 1);
+        currentAngle = (now / orbitalPeriodSeconds) * Math.PI * 2;
       }
     } else {
-      angleRef.current += data.speed * 0.1 * delta * timeScale;
-      x = Math.cos(angleRef.current) * data.distance;
-      z = Math.sin(angleRef.current) * data.distance;
+      // Keplers 2nd law approximation (faster near perihelion)
+      // r is current distance. v ~ 1/r. 
+      // Simplified: Just use constant angular speed for visualization unless very eccentric
+      const variableSpeed = eccentricity > 0.3 
+         ? data.speed * (1 + eccentricity * Math.cos(angleRef.current)) 
+         : data.speed;
+         
+      angleRef.current += variableSpeed * 0.1 * delta * timeScale;
+      currentAngle = angleRef.current;
     }
 
-    // Apply Inclination logic
-    // This rotates the position around the X-axis
-    const y_pos = z * Math.sin(inclinationRad);
-    const z_pos = z * Math.cos(inclinationRad);
+    // Keplerian Orbit Math (Same as OrbitLine)
+    const a = data.distance;
+    const r = (a * (1 - eccentricity * eccentricity)) / (1 + eccentricity * Math.cos(currentAngle));
+    
+    // Orbital Plane Coordinates
+    const xOrb = r * Math.cos(currentAngle);
+    const zOrb = r * Math.sin(currentAngle);
 
-    meshRef.current.position.set(x, y_pos, z_pos);
+    // Apply Argument of Periapsis Rotation (in XZ plane)
+    const xPeri = xOrb * Math.cos(omega) - zOrb * Math.sin(omega);
+    const zPeri = xOrb * Math.sin(omega) + zOrb * Math.cos(omega);
 
+    // Apply Inclination (Rotate around X axis)
+    const xFinal = xPeri;
+    const yFinal = zPeri * Math.sin(inclinationRad);
+    const zFinal = zPeri * Math.cos(inclinationRad);
+
+    meshRef.current.position.set(xFinal, yFinal, zFinal);
+
+    // Body Rotation
     if (planetRef.current) {
       planetRef.current.rotation.y += data.rotationSpeed * delta;
     }
@@ -179,7 +242,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     ? BODY_TYPE_TRANSLATIONS[rawType][language] 
     : rawType.toUpperCase();
 
-  const showTrail = !isSmallBody && data.type !== 'moon' && !isGiant;
+  const showTrail = !isSmallBody && data.type !== 'moon' && !isGiant && eccentricity < 0.2;
   
   const renderBody = () => {
     if (isBlackHole) {
@@ -237,13 +300,14 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
         <group>
              {/* Atmosphere Glow for larger planets */}
              {data.radius > 1 && (
-                <mesh scale={[1.15, 1.15, 1.15]}>
+                <mesh scale={[1.2, 1.2, 1.2]}>
                     <sphereGeometry args={[data.radius, 32, 32]} />
                     <meshBasicMaterial 
                         color={data.color} 
                         transparent 
-                        opacity={0.1} 
+                        opacity={0.15} 
                         side={THREE.BackSide}
+                        blending={THREE.AdditiveBlending}
                     />
                 </mesh>
             )}
@@ -275,7 +339,9 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             radius={data.distance} 
             color={data.orbitColor} 
             dashed={isSmallBody}
-            inclination={data.inclination || 0} 
+            inclination={data.inclination || 0}
+            eccentricity={data.eccentricity}
+            argumentOfPeriapsis={data.argumentOfPeriapsis}
         />
       )}
       
@@ -357,82 +423,281 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   );
 };
 
-export const Sun: React.FC<{ showLabels: boolean; language: Language }> = ({ showLabels, language }) => {
+const GalacticTrajectory = ({ language }: { language: Language }) => {
+    // We visualize a segment of the massive Galactic Orbit
+    const curveRadius = 1500;
+    const arcLength = 500;
+    
+    const points = useMemo(() => {
+        const pts = [];
+        // Center of orbit is at (+curveRadius, 0, 0)
+        // We generate points for a large arc passing through (0,0,0)
+        // Equation: (x - R)^2 + z^2 = R^2
+        // We iterate Z to generate X
+        for (let z = -arcLength; z <= arcLength; z += 5) {
+             // x = R - sqrt(R^2 - z^2)
+             const x = curveRadius - Math.sqrt(curveRadius * curveRadius - z * z);
+             pts.push(new THREE.Vector3(x, 0, z));
+        }
+        return pts;
+    }, []);
+
+    const geometry = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
+
+    const centerText = language === 'PL' ? "Centrum Galaktyki (Sgr A*)" : "Galactic Center (Sgr A*)";
+    const orbitText = language === 'PL' ? "Orbita Galaktyczna (T=230mln lat)" : "Galactic Orbit Path (T=230Myr)";
+    const velocityText = language === 'PL' ? "Wektor Prędkości (220 km/s)" : "Velocity Vector (220 km/s)";
+
+    return (
+        <group rotation={[0, Math.PI, 0]}> 
+             {/* The Orbit Path Segment */}
+             <ThreeLine>
+                <bufferGeometry attach="geometry" {...geometry} />
+                <lineBasicMaterial color="#9c27b0" linewidth={2} transparent opacity={0.6} />
+             </ThreeLine>
+             
+             {/* Pointer to Galactic Center */}
+             <group position={[100, 0, 0]}>
+                <mesh rotation={[0, 0, -Math.PI/2]}>
+                    <coneGeometry args={[2, 6, 8]} />
+                    <meshBasicMaterial color="#9c27b0" />
+                </mesh>
+                <mesh position={[50, 0, 0]} rotation={[0, 0, Math.PI/2]}>
+                    <cylinderGeometry args={[0.3, 0.3, 100]} />
+                    <meshBasicMaterial color="#9c27b0" transparent opacity={0.4} /> 
+                </mesh>
+                <Text position={[110, 0, 0]} fontSize={6} color="#e1bee7" anchorX="left">
+                    {centerText} (~26,000 ly)
+                </Text>
+             </group>
+
+             {/* Solar Apex / Velocity */}
+             <group position={[0,0,-80]}>
+                <mesh rotation={[Math.PI/2, 0, 0]}>
+                    <coneGeometry args={[1.5, 5, 8]} />
+                    <meshBasicMaterial color="#03a9f4" />
+                </mesh>
+                <Text position={[0, 4, 0]} fontSize={3} color="#03a9f4">
+                    {velocityText}
+                </Text>
+             </group>
+
+             {/* Label on the path */}
+             <Text 
+                position={[15, -5, -40]} 
+                rotation={[-Math.PI/2, 0, 0]} 
+                fontSize={4} 
+                color="#ba68c8"
+                anchorX="left"
+            >
+                {orbitText}
+            </Text>
+        </group>
+    )
+}
+
+// Particle System simulating movement through Interstellar Medium
+const InterstellarStream = () => {
+    const count = 300;
+    const geometry = useMemo(() => {
+        const geo = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const speeds = new Float32Array(count);
+        
+        for (let i = 0; i < count; i++) {
+            // Random spread around the solar system
+            positions[i * 3] = (Math.random() - 0.5) * 400; // x
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 100; // y
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 400 - 200; // z (start ahead)
+            speeds[i] = 1 + Math.random() * 2;
+        }
+        
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        return { geo, speeds, positions };
+    }, []);
+
+    const pointsRef = useRef<THREE.Points>(null);
+
+    useFrame((_, delta) => {
+        if (!pointsRef.current) return;
+        
+        const positions = pointsRef.current.geometry.attributes.position.array as Float32Array;
+        
+        // Move particles along Z axis (towards camera) to simulate Sun moving forward (Negative Z)
+        for (let i = 0; i < count; i++) {
+            // Move along +Z (past camera)
+            positions[i * 3 + 2] += geometry.speeds[i] * 50 * delta; 
+
+            // Reset if passed camera
+            if (positions[i * 3 + 2] > 200) {
+                positions[i * 3 + 2] = -300;
+                positions[i * 3] = (Math.random() - 0.5) * 400; // Randomize X again
+            }
+        }
+        pointsRef.current.geometry.attributes.position.needsUpdate = true;
+    });
+
+    return (
+        <group rotation={[0, 0, 0]}> 
+             <points ref={pointsRef}>
+                <bufferGeometry attach="geometry">
+                    <bufferAttribute
+                        attach="attributes-position"
+                        count={count}
+                        array={geometry.positions}
+                        itemSize={3}
+                    />
+                </bufferGeometry>
+                <pointsMaterial 
+                    attach="material" 
+                    size={0.8} 
+                    color="#88ccff" 
+                    transparent 
+                    opacity={0.4} 
+                    sizeAttenuation 
+                />
+            </points>
+        </group>
+    );
+};
+
+export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale: number; isRealTime: boolean }> = ({ showLabels, language, timeScale, isRealTime }) => {
     const [hovered, setHover] = useState(false);
     const displayName = language === 'PL' ? SUN_DATA.namePL : SUN_DATA.name;
     const description = language === 'PL' ? SUN_DATA.descriptionPL : SUN_DATA.description;
     const typeLabel = BODY_TYPE_TRANSLATIONS['star'][language];
+    
+    const sunGroupRef = useRef<THREE.Group>(null);
+    const angleRef = useRef(0);
+
+    // Wobble Animation (Barycentric Orbit)
+    useFrame((_, delta) => {
+        if (sunGroupRef.current) {
+            let currentAngle = 0;
+            const speed = SUN_DATA.wobbleSpeed;
+            const distance = SUN_DATA.barycentricRadius;
+
+            if (isRealTime) {
+                const now = Date.now() / 1000;
+                // Simplified real-time period calculation based on wobbleSpeed ratio
+                const period = 365.25 * 24 * 3600 / speed; 
+                currentAngle = (now / period) * Math.PI * 2;
+            } else {
+                 angleRef.current += speed * 0.1 * delta * timeScale;
+                 currentAngle = angleRef.current;
+            }
+
+            // Move sun opposite to where planets generally are (simplified logic, usually opposite Jupiter)
+            // But since planets move independently, we just animate the sun in a circle to show the concept.
+            const x = Math.cos(currentAngle) * distance;
+            const z = Math.sin(currentAngle) * distance;
+            
+            sunGroupRef.current.position.set(x, 0, z);
+        }
+    });
 
     return (
         <group>
-            {/* Main Sun Body with Distortion */}
-            <mesh 
-                onPointerOver={() => setHover(true)}
-                onPointerOut={() => setHover(false)}
-            >
-                <sphereGeometry args={[6, 64, 64]} />
-                <MeshDistortMaterial 
-                    color="#FFD700" 
-                    emissive="#FF8C00"
-                    emissiveIntensity={2}
-                    roughness={0}
-                    distort={0.4}
-                    speed={1.5}
-                />
-            </mesh>
-            
-            {/* Light Source */}
-            <pointLight intensity={3} distance={15000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
-            
-            {/* Corona Glow */}
-            <mesh scale={[1.4, 1.4, 1.4]}>
-                 <sphereGeometry args={[6, 32, 32]} />
-                 <meshBasicMaterial color="#FF4500" transparent opacity={0.15} side={THREE.BackSide}/>
-            </mesh>
-            <mesh scale={[2, 2, 2]}>
-                 <sphereGeometry args={[6, 32, 32]} />
-                 <meshBasicMaterial color="#FF8C00" transparent opacity={0.05} side={THREE.BackSide}/>
-            </mesh>
+             {/* Barycenter Center Point */}
+             <mesh position={[0,0,0]}>
+                <sphereGeometry args={[0.5, 16, 16]} />
+                <meshBasicMaterial color="white" opacity={0.6} transparent />
+             </mesh>
+             <Text 
+                rotation={[-Math.PI / 2, 0, 0]} 
+                position={[0, 0, 0]} 
+                fontSize={2} 
+                color="#777" 
+                anchorX="center" 
+                anchorY="middle"
+             >
+                + Barycenter
+             </Text>
 
-            {showLabels && (
-                <Html 
-                    position={[0, 9, 0]} 
-                    center 
-                    distanceFactor={50} 
-                    zIndexRange={hovered ? [100000, 100000] : [100, 0]}
-                    style={{ 
-                        pointerEvents: 'none',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: 'max-content'
-                    }}
+             {/* Sun's Orbit around Barycenter */}
+             <OrbitLine 
+                radius={SUN_DATA.barycentricRadius} 
+                color="#FF4500" 
+                inclination={0} 
+                dashed={true} 
+                opacity={0.6}
+             />
+
+             {/* Galactic Context - Fixed relative to Barycenter */}
+             <GalacticTrajectory language={language} />
+             <InterstellarStream />
+
+            <group ref={sunGroupRef}>
+                
+                {/* Main Sun Body with Distortion */}
+                <mesh 
+                    onPointerOver={() => setHover(true)}
+                    onPointerOut={() => setHover(false)}
                 >
-                    <div 
-                        className="relative flex flex-col items-center pointer-events-auto cursor-help"
-                        onMouseEnter={() => setHover(true)}
-                        onMouseLeave={() => setHover(false)}
-                    >
-                        <div className={`
-                            px-5 py-3 rounded-xl font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide select-none
-                            ${hovered 
-                            ? 'bg-yellow-600 text-white scale-125 z-50 text-4xl border-yellow-300 shadow-[0_0_40px_rgba(255,215,0,0.8)]' 
-                            : 'bg-black/70 text-white hover:bg-black/90 text-2xl'}
-                        `}>
-                            {displayName}
-                        </div>
+                    <sphereGeometry args={[6, 64, 64]} />
+                    <MeshDistortMaterial 
+                        color="#FFD700" 
+                        emissive="#FF8C00"
+                        emissiveIntensity={2}
+                        roughness={0}
+                        distort={0.4}
+                        speed={1.5}
+                    />
+                </mesh>
+                
+                {/* Light Source */}
+                <pointLight intensity={3} distance={15000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
+                
+                {/* Corona Glow */}
+                <mesh scale={[1.4, 1.4, 1.4]}>
+                    <sphereGeometry args={[6, 32, 32]} />
+                    <meshBasicMaterial color="#FF4500" transparent opacity={0.15} side={THREE.BackSide}/>
+                </mesh>
+                <mesh scale={[2, 2, 2]}>
+                    <sphereGeometry args={[6, 32, 32]} />
+                    <meshBasicMaterial color="#FF8C00" transparent opacity={0.05} side={THREE.BackSide}/>
+                </mesh>
 
-                        {/* Sun Tooltip - Wider and Larger */}
-                        <div className={`
-                            absolute top-full mt-6 w-80 sm:w-96 p-5 rounded-xl bg-black/95 border border-yellow-500/50 text-white backdrop-blur-xl transition-all duration-300 z-50
-                            ${hovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'}
-                        `}>
-                            <div className="text-sm text-yellow-300 uppercase font-bold mb-2 tracking-wider">{typeLabel}</div>
-                            <p className="leading-relaxed text-base text-gray-200">{description}</p>
+                {showLabels && (
+                    <Html 
+                        position={[0, 9, 0]} 
+                        center 
+                        distanceFactor={50} 
+                        zIndexRange={hovered ? [100000, 100000] : [100, 0]}
+                        style={{ 
+                            pointerEvents: 'none',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: 'max-content'
+                        }}
+                    >
+                        <div 
+                            className="relative flex flex-col items-center pointer-events-auto cursor-help"
+                            onMouseEnter={() => setHover(true)}
+                            onMouseLeave={() => setHover(false)}
+                        >
+                            <div className={`
+                                px-5 py-3 rounded-xl font-extrabold whitespace-nowrap transition-all duration-300 backdrop-blur-md border border-white/20 shadow-xl origin-center tracking-wide select-none
+                                ${hovered 
+                                ? 'bg-yellow-600 text-white scale-125 z-50 text-4xl border-yellow-300 shadow-[0_0_40px_rgba(255,215,0,0.8)]' 
+                                : 'bg-black/70 text-white hover:bg-black/90 text-2xl'}
+                            `}>
+                                {displayName}
+                            </div>
+
+                            {/* Sun Tooltip - Wider and Larger */}
+                            <div className={`
+                                absolute top-full mt-6 w-80 sm:w-96 p-5 rounded-xl bg-black/95 border border-yellow-500/50 text-white backdrop-blur-xl transition-all duration-300 z-50
+                                ${hovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-4'}
+                            `}>
+                                <div className="text-sm text-yellow-300 uppercase font-bold mb-2 tracking-wider">{typeLabel}</div>
+                                <p className="leading-relaxed text-base text-gray-200">{description}</p>
+                            </div>
                         </div>
-                    </div>
-                </Html>
-            )}
+                    </Html>
+                )}
+            </group>
         </group>
     )
 }

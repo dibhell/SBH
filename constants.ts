@@ -1,3 +1,5 @@
+
+
 export interface CelestialBodyData {
   id: string;
   name: string;
@@ -6,11 +8,13 @@ export interface CelestialBodyData {
   descriptionPL: string;
   type: 'star' | 'planet' | 'dwarf' | 'moon' | 'asteroid' | 'comet' | 'interstellar' | 'blackhole';
   radius: number; // Visual scale radius
-  distance: number; // Distance from parent (or Sun)
+  distance: number; // Semi-major axis
   color: string; // Material color
   speed: number; // Orbital speed multiplier
   rotationSpeed: number;
   inclination?: number; // Orbit tilt in degrees
+  eccentricity?: number; // 0 = circle, < 1 = ellipse
+  argumentOfPeriapsis?: number; // Rotation of the ellipse in the orbital plane (degrees)
   moons?: CelestialBodyData[];
   orbitColor?: string;
   ring?: { inner: number; outer: number; color: string; };
@@ -25,11 +29,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Najbliższa Słońcu i najmniejsza planeta w Układzie Słonecznym. Ze względu na brak atmosfery, temperatury na powierzchni wahają się ekstremalnie: od 430°C w dzień do -180°C w nocy. Jego pocięta kraterami powierzchnia przypomina ziemski Księżyc.",
     type: 'planet',
     radius: 0.8,
-    distance: 12,
+    distance: 22, // Pushed out to make room for Sun wobble
     color: '#A5A5A5',
     speed: 4.1,
     rotationSpeed: 0.02,
     inclination: 7.0,
+    eccentricity: 0.205,
+    argumentOfPeriapsis: 29,
     orbitColor: '#555',
   },
   {
@@ -40,11 +46,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Nazywana bliźniaczką Ziemi ze względu na rozmiar, ale posiada toksyczną atmosferę z dwutlenku węgla i chmury kwasu siarkowego. To najgorętsza planeta w układzie przez ekstremalny efekt cieplarniany, a ciśnienie na powierzchni jest 90 razy wyższe niż na Ziemi.",
     type: 'planet',
     radius: 1.5,
-    distance: 18,
+    distance: 32,
     color: '#E3BB76',
     speed: 1.6,
     rotationSpeed: -0.01,
     inclination: 3.4,
+    eccentricity: 0.007,
+    argumentOfPeriapsis: 55,
     orbitColor: '#766',
   },
   {
@@ -55,11 +63,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Nasza planeta, jedyne znane miejsce we Wszechświecie, gdzie istnieje życie. Posiada unikalną równowagę wody w stanie ciekłym, tektonikę płyt i ochronną atmosferę. Około 71% jej powierzchni pokrywają oceany.",
     type: 'planet',
     radius: 1.6,
-    distance: 26,
+    distance: 45,
     color: '#22A6B3',
     speed: 1.0,
     rotationSpeed: 0.05,
     inclination: 0,
+    eccentricity: 0.017,
+    argumentOfPeriapsis: 114,
     orbitColor: '#357',
     moons: [
       {
@@ -70,11 +80,12 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         descriptionPL: "Jedyny naturalny satelita Ziemi, powstały ok. 4,5 mld lat temu, prawdopodobnie w wyniku kolizji Ziemi z obiektem wielkości Marsa. Stabilizuje nachylenie osi Ziemi i powoduje pływy morskie.",
         type: 'moon',
         radius: 0.4,
-        distance: 3.5,
+        distance: 4.5,
         color: '#DDDDDD',
         speed: 12.0,
         rotationSpeed: 0.01,
-        inclination: 5.1
+        inclination: 5.1,
+        eccentricity: 0.05
       }
     ]
   },
@@ -86,11 +97,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Planetoida bliska Ziemi o średnicy ok. 340 metrów. Zyskała sławę dzięki przewidywanemu bliskiemu przelotowi w 2029 roku, kiedy minie Ziemię bliżej niż satelity geostacjonarne i będzie widoczna gołym okiem.",
     type: 'asteroid',
     radius: 0.2,
-    distance: 24, // Near Earth
+    distance: 38, // Near Earth
     color: '#555555',
     speed: 1.1,
     rotationSpeed: 0.1,
     inclination: 3.3,
+    eccentricity: 0.19,
+    argumentOfPeriapsis: 126,
     orbitColor: '#333',
   },
   {
@@ -101,11 +114,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Bogata w węgiel asteroida typu 'sterta gruzu'. Uważana za kapsułę czasu z początków Układu Słonecznego. Misja OSIRIS-REx z powodzeniem pobrała próbki z jej powierzchni i dostarczyła je na Ziemię.",
     type: 'asteroid',
     radius: 0.2,
-    distance: 28, // Near Earth
+    distance: 48, // Near Earth
     color: '#333333',
     speed: 0.9,
     rotationSpeed: 0.1,
     inclination: 6.0,
+    eccentricity: 0.2,
+    argumentOfPeriapsis: 66,
     orbitColor: '#333',
   },
   {
@@ -116,11 +131,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Czerwona Planeta, zawdzięczająca barwę pyłowi tlenku żelaza (rdzy). Znajduje się tu Olympus Mons, największy wulkan w układzie, oraz Valles Marineris, kanion znacznie większy od Wielkiego Kanionu. Kiedyś na jej powierzchni płynęła woda.",
     type: 'planet',
     radius: 1.1,
-    distance: 34,
+    distance: 60,
     color: '#EB4D4B',
     speed: 0.53,
     rotationSpeed: 0.04,
     inclination: 1.85,
+    eccentricity: 0.094,
+    argumentOfPeriapsis: 286,
     orbitColor: '#733',
   },
   // Asteroid Belt Objects
@@ -132,11 +149,12 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Drugi co do wielkości obiekt w pasie planetoid. Ma budowę podobną do planet (skorupa, płaszcz, jądro). Ogromny krater na biegunie południowym wyrzucił materiał, który znajdujemy na Ziemi jako meteoryty.",
     type: 'asteroid',
     radius: 0.4,
-    distance: 38,
+    distance: 72,
     color: '#DCDCDC',
     speed: 0.45,
     rotationSpeed: 0.08,
     inclination: 7.1,
+    eccentricity: 0.089,
     orbitColor: '#444',
   },
   {
@@ -147,11 +165,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Trzecia największa asteroida, stanowiąca ok. 7% masy pasa. Jej orbita jest bardzo silnie nachylona względem płaszczyzny planet, co czyni ją trudnym celem dla sond kosmicznych.",
     type: 'asteroid',
     radius: 0.4,
-    distance: 40,
+    distance: 76,
     color: '#708090',
     speed: 0.44,
     rotationSpeed: 0.08,
     inclination: 34.8, // Very High
+    eccentricity: 0.23,
+    argumentOfPeriapsis: 310,
     orbitColor: '#444',
   },
   {
@@ -162,11 +182,12 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Czwarta co do wielkości asteroida, ciemna i bogata w węgiel. Odkryta późno z powodu niskiej jasności. Jest niemal kulista i w przyszłości może zostać sklasyfikowana jako planeta karłowata.",
     type: 'asteroid',
     radius: 0.35,
-    distance: 41,
+    distance: 78,
     color: '#2F2F2F',
     speed: 0.43,
     rotationSpeed: 0.09,
     inclination: 3.8,
+    eccentricity: 0.11,
     orbitColor: '#333',
   },
   {
@@ -177,11 +198,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Największy obiekt w pasie planetoid i jedyna planeta karłowata w wewnętrznym Układzie. Stanowi 1/3 masy pasa. Wykazuje oznaki kriowulkanizmu i potencjalnie posiada podpowierzchniową wodę.",
     type: 'dwarf',
     radius: 0.5,
-    distance: 42,
+    distance: 80,
     color: '#999999',
     speed: 0.4,
     rotationSpeed: 0.05,
     inclination: 10.6,
+    eccentricity: 0.076,
+    argumentOfPeriapsis: 73,
     orbitColor: '#555',
   },
   {
@@ -192,11 +215,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Kometa okresowa widoczna z Ziemi co 75-76 lat. To jedyna kometa widoczna gołym okiem, która może pojawić się dwukrotnie w ciągu ludzkiego życia. Jej powierzchnia pokryta jest ciemnym pyłem węglowym.",
     type: 'comet',
     radius: 0.25,
-    distance: 50, // Average/Visual position
+    distance: 90, // Average/Visual position
     color: '#AEEEEE',
     speed: 0.2, // Highly variable in reality
     rotationSpeed: 0.1,
     inclination: 162.3, // Retrograde
+    eccentricity: 0.967, // EXTREME ELLIPSE
+    argumentOfPeriapsis: 111,
     orbitColor: '#87CEFA',
   },
   {
@@ -207,11 +232,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Król Planet, gazowy olbrzym masywniejszy niż wszystkie inne planety razem wzięte. Słynie z Wielkiej Czerwonej Plamy, burzy trwającej od stuleci. Działa jak 'odkurzacz', chroniąc Ziemię przed częścią asteroid.",
     type: 'planet',
     radius: 4.5,
-    distance: 60,
+    distance: 110,
     color: '#F9CA24',
     speed: 0.08,
     rotationSpeed: 0.1,
     inclination: 1.3,
+    eccentricity: 0.048,
+    argumentOfPeriapsis: 273,
     orbitColor: '#652',
     moons: [
       { 
@@ -276,11 +303,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Gazowy olbrzym wyróżniający się spektakularnym systemem pierścieni, złożonym z miliardów cząstek lodu i skał. Ma najmniejszą gęstość ze wszystkich planet; unosiłby się na wodzie w odpowiednio dużej wannie.",
     type: 'planet',
     radius: 3.8,
-    distance: 85,
+    distance: 145,
     color: '#F0DF90',
     speed: 0.03,
     rotationSpeed: 0.09,
     inclination: 2.48,
+    eccentricity: 0.056,
+    argumentOfPeriapsis: 339,
     orbitColor: '#654',
     ring: { inner: 4.5, outer: 7.5, color: '#C0A080' },
     moons: [
@@ -320,11 +349,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Lodowy olbrzym o unikalnym nachyleniu: toczy się na boku, prawdopodobnie po potężnej kolizji. Bladoniebieski kolor pochodzi od metanu w zimnej atmosferze. Posiada słabe pierścienie.",
     type: 'planet',
     radius: 2.5,
-    distance: 110,
+    distance: 180,
     color: '#7ED6DF',
     speed: 0.01,
     rotationSpeed: 0.06,
     inclination: 0.77,
+    eccentricity: 0.046,
+    argumentOfPeriapsis: 96,
     orbitColor: '#256',
     moons: [
        { id: 'miranda', name: 'Miranda', namePL: 'Miranda', description: "Features a strange, jigsaw-puzzle landscape with giant canyons (verona Rupes) and patchwork terrain.", descriptionPL: "Posiada dziwny krajobraz przypominający puzzle, z gigantycznymi kanionami (Verona Rupes) i pofałdowanym terenem.", type: 'moon', radius: 0.2, distance: 3.5, color: '#E0E0E0', speed: 6, rotationSpeed: 0.02 },
@@ -342,11 +373,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Najdalsza planeta, ciemny, zimny i wietrzny lodowy olbrzym. Naddźwiękowe wiatry gonią chmury zamarzniętego metanu. Pierwsza planeta odkryta dzięki matematyce, zanim została zaobserwowana.",
     type: 'planet',
     radius: 2.4,
-    distance: 130,
+    distance: 215,
     color: '#30336B',
     speed: 0.006,
     rotationSpeed: 0.06,
     inclination: 1.77,
+    eccentricity: 0.01,
+    argumentOfPeriapsis: 273,
     orbitColor: '#225',
     moons: [
       { 
@@ -372,11 +405,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Kiedyś dziewiąta planeta, teraz planeta karłowata w Pasie Kuipera. Posiada lodowiec w kształcie serca z lodu azotowego (Tombaugh Regio) i błękitne niebo widoczne w cienkiej mgle.",
     type: 'dwarf',
     radius: 0.4,
-    distance: 150,
+    distance: 245,
     color: '#D1CCC0',
     speed: 0.004,
     rotationSpeed: 0.01,
     inclination: 17.1,
+    eccentricity: 0.248, // HIGH ECCENTRICITY
+    argumentOfPeriapsis: 113,
     orbitColor: '#444',
   },
   {
@@ -392,6 +427,8 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.02,
     rotationSpeed: 0.5,
     inclination: 60,
+    eccentricity: 1.2, // Hyperbolic in reality, simplified here
+    argumentOfPeriapsis: 0,
     orbitColor: '#800000',
   },
   {
@@ -402,11 +439,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Planeta karłowata, która obraca się tak szybko (co 4 godziny), że została rozciągnięta do kształtu piłki do rugby. Posiada dwa księżyce i cienki system pierścieni.",
     type: 'dwarf',
     radius: 0.35, 
-    distance: 160,
+    distance: 260,
     color: '#BDC3C7',
     speed: 0.0035,
     rotationSpeed: 0.15,
     inclination: 28.2,
+    eccentricity: 0.19,
+    argumentOfPeriapsis: 240,
     orbitColor: '#333',
   },
   {
@@ -417,11 +456,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Klasyczny obiekt Pasa Kuipera, o połowę mniejszy od Plutona. Posiada system pierścieni, który orbituje znacznie dalej, niż wcześniej sugerowały teorie.",
     type: 'dwarf',
     radius: 0.35,
-    distance: 162,
+    distance: 265,
     color: '#8B4513',
     speed: 0.0034,
     rotationSpeed: 0.02,
     inclination: 7.9,
+    eccentricity: 0.038,
+    argumentOfPeriapsis: 150,
     orbitColor: '#333',
   },
   {
@@ -432,11 +473,12 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Nazwana na cześć wedyjskiego boga kosmicznego porządku. To wydłużony obiekt transneptunowy z szybkim okresem obrotu wynoszącym około 6 godzin.",
     type: 'dwarf',
     radius: 0.32,
-    distance: 163,
+    distance: 270,
     color: '#CD853F',
     speed: 0.0033,
     rotationSpeed: 0.04, // Fast rotator
     inclination: 17.2,
+    eccentricity: 0.05,
     orbitColor: '#333',
   },
   {
@@ -447,11 +489,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Drugi najjaśniejszy obiekt w Pasie Kuipera. Nie posiada atmosfery jak Pluton, ale jest pokryty lodem metanowym i etanowym, co nadaje mu czerwonobrązowy kolor.",
     type: 'dwarf',
     radius: 0.38,
-    distance: 165,
+    distance: 275,
     color: '#E67E22',
     speed: 0.0032,
     rotationSpeed: 0.02,
     inclination: 29,
+    eccentricity: 0.15,
+    argumentOfPeriapsis: 295,
     orbitColor: '#333',
   },
   {
@@ -462,11 +506,12 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Duży obiekt w Pasie Kuipera orbitujący z księżycem Actaea. Ma bardzo ciemną powierzchnię, odbijającą tylko około 3-4% światła słonecznego.",
     type: 'dwarf',
     radius: 0.3,
-    distance: 168,
+    distance: 280,
     color: '#5F9EA0',
     speed: 0.0031,
     rotationSpeed: 0.02,
     inclination: 23.9,
+    eccentricity: 0.1,
     orbitColor: '#333',
   },
   {
@@ -477,11 +522,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Jedna z największych znanych planet karłowatych, rozmiarami zbliżona do Plutona, ale o 27% masywniejsza. Jej odkrycie doprowadziło do reklasyfikacji Plutona.",
     type: 'dwarf',
     radius: 0.4,
-    distance: 170,
+    distance: 290,
     color: '#FFFFFF',
     speed: 0.003,
     rotationSpeed: 0.01,
     inclination: 44.0, // Highly inclined
+    eccentricity: 0.44, // HIGH ECCENTRICITY
+    argumentOfPeriapsis: 151,
     orbitColor: '#333',
   },
   {
@@ -492,11 +539,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Nazywany 'anty-Plutonem', ponieważ ma ten sam okres orbitalny, ale zawsze znajduje się po przeciwnej stronie Słońca. Posiada dużego księżyca o nazwie Vanth.",
     type: 'dwarf',
     radius: 0.35,
-    distance: 148, // Anti-Pluto, but placed further in list for render order
+    distance: 250, // Anti-Pluto, but placed further in list for render order
     color: '#778899',
     speed: 0.004,
     rotationSpeed: 0.02,
     inclination: 20.5,
+    eccentricity: 0.22,
+    argumentOfPeriapsis: 300,
     orbitColor: '#444',
   },
   {
@@ -507,11 +556,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Czerwona planeta karłowata o silnie eliptycznej orbicie. Nazwana na cześć chińskiego boga wody odpowiedzialnego za powodzie i chaos. Prawdopodobnie pokryta tholinami.",
     type: 'dwarf',
     radius: 0.38,
-    distance: 180,
+    distance: 310,
     color: '#B22222',
     speed: 0.0025,
     rotationSpeed: 0.02,
     inclination: 30.7,
+    eccentricity: 0.5, // VERY HIGH
+    argumentOfPeriapsis: 330,
     orbitColor: '#333',
   },
   {
@@ -522,11 +573,13 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Najdalszy znany kandydat na planetę karłowatą. Obieg Słońca zajmuje jej 11 400 lat. Jej orbita leży daleko poza Pasem Kuipera, w regionie zwanym dyskiem rozproszonym.",
     type: 'dwarf',
     radius: 0.38,
-    distance: 250, // Very far
+    distance: 380, // Very far
     color: '#FF4500',
     speed: 0.001,
     rotationSpeed: 0.02,
     inclination: 11.9,
+    eccentricity: 0.85, // EXTREME ECCENTRICITY
+    argumentOfPeriapsis: 311,
     orbitColor: '#333',
   },
   // Giant Stars for Scale Comparison (Placed far out)
@@ -538,7 +591,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Najjaśniejsza gwiazda nocnego nieba. Jest gwiazdą ciągu głównego, mniej więcej dwa razy większą od Słońca.",
     type: 'star',
     radius: 8, // ~1.7x Sun (Sun is 6 in this scale approx, slightly larger visual)
-    distance: 300,
+    distance: 450,
     color: '#AEC2E0', // Blue-white
     speed: 0,
     rotationSpeed: 0.01,
@@ -552,7 +605,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Pomarańczowy olbrzym w gwiazdozbiorze Bliźniąt. To najbliższy Ziemi olbrzym. Jest około 9 razy większy od Słońca.",
     type: 'star',
     radius: 15, // ~9x Sun visual scale
-    distance: 450,
+    distance: 550,
     color: '#FFD180', // Orange
     speed: 0,
     rotationSpeed: 0.005,
@@ -566,7 +619,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Czerwony olbrzym i najjaśniejsza gwiazda północnej półkuli nieba. Ma promień około 25 razy większy od Słońca.",
     type: 'star',
     radius: 25, // ~25x Sun visual scale
-    distance: 600,
+    distance: 700,
     color: '#FF8C00', // Orange-Red
     speed: 0,
     rotationSpeed: 0.004,
@@ -580,7 +633,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "'Oko Byka'. Czerwony olbrzym około 44 razy większy od Słońca. Posiada gigantyczną planetę o masie kilkukrotnie większej od Jowisza.",
     type: 'star',
     radius: 40, // ~44x Sun visual scale
-    distance: 800,
+    distance: 900,
     color: '#FF4500', // Red-Orange
     speed: 0,
     rotationSpeed: 0.003,
@@ -594,7 +647,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Błękitny nadolbrzym w Orionie. Świeci z jasnością dziesiątek tysięcy Słońc i ma promień ok. 78 razy większy od słonecznego.",
     type: 'star',
     radius: 60, // ~78x Sun visual scale
-    distance: 1100,
+    distance: 1200,
     color: '#ADD8E6', // Light Blue
     speed: 0,
     rotationSpeed: 0.002,
@@ -608,7 +661,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Czerwony nadolbrzym zbliżający się do końca życia. Gdyby znalazł się w naszym układzie, pochłonąłby orbitę Marsa. ~680x promień Słońca.",
     type: 'star',
     radius: 100, // ~680x Sun visual scale (compressed)
-    distance: 1500,
+    distance: 1600,
     color: '#FF0000', // Red
     speed: 0,
     rotationSpeed: 0.001,
@@ -618,11 +671,11 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     id: 'betelgeuse',
     name: 'Betelgeuse',
     namePL: 'Betelgeza',
-    description: "A red supergiant expected to explode as a supernova. It varies in size, but is typically around 900 times the size of the Sun.",
+    description: "A red supergiant expected to explode as a supernova. It varies in size, but is typically around 900 times the size of the Sun. expected to explode as a supernova.",
     descriptionPL: "Czerwony nadolbrzym, który wkrótce wybuchnie jako supernowa. Zmienia rozmiar, ale typowo jest około 900 razy większy od Słońca.",
     type: 'star',
     radius: 150, // ~900x Sun visual scale (compressed)
-    distance: 2000,
+    distance: 2100,
     color: '#8B0000', // Deep Red
     speed: 0,
     rotationSpeed: 0.001,
@@ -636,7 +689,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Jedna z największych znanych gwiazd. Hiperolbrzym o promieniu ok. 1700 razy większym od Słońca. Sięgałby poza orbitę Jowisza.",
     type: 'star',
     radius: 250, // ~1700x Sun visual scale (compressed)
-    distance: 3000,
+    distance: 3100,
     color: '#FF2400', // Scarlet
     speed: 0,
     rotationSpeed: 0.0005,
@@ -650,7 +703,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Obecnie największa znana gwiazda we Wszechświecie. Czerwony nadolbrzym o promieniu ok. 2150 razy większym od Słońca. Gdyby znalazła się w Układzie Słonecznym, sięgałaby poza orbitę Saturna.",
     type: 'star',
     radius: 350, // Visual scale (compressed)
-    distance: 3800,
+    distance: 4000,
     color: '#DC143C', // Crimson
     speed: 0,
     rotationSpeed: 0.0004,
@@ -689,8 +742,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
 export const SUN_DATA = {
     name: 'Sun',
     namePL: 'Słońce',
-    description: "A yellow dwarf star at the center of our Solar System, containing 99.86% of the system's total mass. It is a ball of hot plasma powered by nuclear fusion, converting hydrogen into helium, providing the energy for life on Earth.",
-    descriptionPL: "Żółty karzeł w centrum Układu Słonecznego, zawierający 99,86% masy całego układu. To kula gorącej plazmy zasilana fuzją jądrową, zamieniającą wodór w hel, dostarczająca energię niezbędną dla życia na Ziemi."
+    description: "The Star at the center of our Solar System. It orbits the Galactic Center (Sagittarius A*) every 230 million years. Locally, it also wobbles around the Solar System Barycenter due to Jupiter's gravity.",
+    descriptionPL: "Gwiazda w centrum układu. Krąży wokół Centrum Galaktyki (Sagittarius A*) z okresem 230 mln lat. Lokalnie 'tańczy' też wokół Barycentrum pod wpływem grawitacji Jowisza.",
+    barycentricRadius: 14, // Increased significantly so it's clearly visible outside the Sun mesh
+    wobbleSpeed: 0.15, // Faster wobble for visual effect
 }
 
 export const GALAXY_DATA = {

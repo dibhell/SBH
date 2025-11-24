@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, PerspectiveCamera, Loader } from '@react-three/drei';
@@ -176,7 +177,12 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
 
       {state.viewMode === 'SOLAR_DETAILED' ? (
         <group>
-          <Sun showLabels={state.showLabels} language={state.language} />
+          <Sun 
+            showLabels={state.showLabels} 
+            language={state.language} 
+            timeScale={state.timeScale}
+            isRealTime={state.isRealTime}
+          />
           {SOLAR_SYSTEM_DATA.map((body) => (
             <CelestialBody 
               key={body.id} 
