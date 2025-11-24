@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import Scene from './components/Scene';
 import UIOverlay from './components/UIOverlay';
@@ -11,6 +12,8 @@ const App: React.FC = () => {
     showLabels: true,
     language: 'PL', // Default to Polish as requested
     targetBody: null,
+    showGiantObjects: false, // Default hidden to reduce clutter and help find Pluto
+    showStarDust: true,
   });
 
   const [resetTrigger, setResetTrigger] = useState(0);
