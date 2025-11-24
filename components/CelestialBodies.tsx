@@ -222,8 +222,14 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     const zPeri = xOrb * Math.sin(omega) + zOrb * Math.cos(omega);
 
     // Apply Inclination (Rotate around X axis)
+    // IMPORTANT: The sign of the sin term must oppose the rotation direction 
+    // to match the Three.js group rotation logic used in OrbitLine.
+    // Three.js group rotation [inc, 0, 0] rotates +Y towards +Z. 
+    // Manual point rotation must match this transformation matrix:
+    // y' = y*cos - z*sin => 0 - z*sin
+    // z' = y*sin + z*cos => 0 + z*cos
     const xFinal = xPeri;
-    const yFinal = zPeri * Math.sin(inclinationRad);
+    const yFinal = -zPeri * Math.sin(inclinationRad); 
     const zFinal = zPeri * Math.cos(inclinationRad);
 
     meshRef.current.position.set(xFinal, yFinal, zFinal);
