@@ -182,8 +182,15 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
             language={state.language} 
             timeScale={state.timeScale}
             isRealTime={state.isRealTime}
+            showStarDust={state.showStarDust}
           />
-          {SOLAR_SYSTEM_DATA.map((body) => (
+          {SOLAR_SYSTEM_DATA.filter(body => {
+              // Filtering Giant Objects
+              if (!state.showGiantObjects && (body.type === 'star' || body.type === 'blackhole')) {
+                  return false;
+              }
+              return true;
+          }).map((body) => (
             <CelestialBody 
               key={body.id} 
               data={body} 
