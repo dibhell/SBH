@@ -890,7 +890,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Supermasywna czarna dziura w centrum Drogi Mlecznej. Ma masę 4,3 miliona Słońc, ale mieści się w promieniu mniejszym niż orbita Merkurego. Ukazana z gorącym dyskiem akrecyjnym.",
     type: 'blackhole',
     radius: 80, // Event horizon * visual scale for visibility
-    distance: 4500,
+    distance: 320, // Pulled closer so it's framed in Solar view
     color: '#000000', 
     speed: 0,
     rotationSpeed: 0.1,
