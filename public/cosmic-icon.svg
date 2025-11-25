@@ -1,0 +1,28 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Cosmic swirl icon</title>
+  <desc id="desc">A stylized cosmic spiral with a glowing core</desc>
+  <defs>
+    <radialGradient id="core" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#ffe29f" />
+      <stop offset="45%" stop-color="#ffa99f" />
+      <stop offset="100%" stop-color="#6a00ff" />
+    </radialGradient>
+    <linearGradient id="tail" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7cf3ff" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#7a5bff" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#ff7de9" stop-opacity="0.8" />
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="#050714" />
+  <circle cx="128" cy="128" r="72" fill="url(#core)" filter="url(#glow)" />
+  <path d="M40 132c32-40 84-56 120-40 24 10 28 32 12 48-18 18-62 30-70 50-8 18 9 30 24 28 26-3 62-26 86-58" fill="none" stroke="url(#tail)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)" />
+  <circle cx="206" cy="70" r="10" fill="#7cf3ff" />
+  <circle cx="52" cy="198" r="7" fill="#ff7de9" />
+</svg>
