@@ -21,7 +21,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1CcbRK82SnyarNXhSMfnt9p
 
 ## Deployment note
 
-When serving the app from a subpath (e.g., GitHub Pages), set Vite's `base` option so assets like the cosmic favicon and overlay logo resolve correctly through `import.meta.env.BASE_URL`. Make sure the base value ends with a trailing `/` so generated asset paths stay valid.
+When serving the app from a subpath (e.g., GitHub Pages), set Vite's `base` option so assets like the cosmic favicon and overlay logo resolve correctly through `import.meta.env.BASE_URL`. Make sure the base value ends with a trailing `/` so generated asset paths stay valid. Brand assets live in `/public` (`cosmic-icon.svg` for the favicon and `cosmic-logo.svg` for the overlay badge) so they are copied to the server root during builds.
 
 ## How to approve and merge when you are the only reviewer
 

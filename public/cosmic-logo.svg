@@ -1,0 +1,36 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Cosmic crest</title>
+  <desc id="desc">A circular logo with a glowing horizon and orbit trail</desc>
+  <defs>
+    <radialGradient id="horizon" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#f8fffd" />
+      <stop offset="40%" stop-color="#7cf3ff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0b0f2e" stop-opacity="0.95" />
+    </radialGradient>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7cf3ff" />
+      <stop offset="50%" stop-color="#8c7bff" />
+      <stop offset="100%" stop-color="#ff7de9" />
+    </linearGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="#040616" />
+  <circle cx="128" cy="128" r="80" fill="url(#horizon)" filter="url(#softGlow)" />
+  <path
+    d="M48 140c34-48 106-72 152-44 18 11 22 32 8 46-18 18-60 26-82 44-16 14-12 30 6 34 30 6 74-24 98-62"
+    fill="none"
+    stroke="url(#ring)"
+    stroke-width="14"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    filter="url(#softGlow)"
+  />
+  <circle cx="208" cy="86" r="10" fill="#7cf3ff" />
+  <circle cx="62" cy="204" r="8" fill="#ff7de9" />
+</svg>
