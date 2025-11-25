@@ -3,6 +3,7 @@ import React from 'react';
 import { AppState } from '../types';
 import { Play, Clock, Info, Languages, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, MousePointer2 } from 'lucide-react';
 import { UI_TRANSLATIONS, SOLAR_SYSTEM_DATA, SUN_DATA } from '../constants';
+import { COSMIC_ICON_URL } from '../assetPaths';
 
 interface UIOverlayProps {
   state: AppState;
@@ -37,7 +38,7 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
         <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 text-white shadow-2xl max-w-md">
           <div className="flex items-center gap-3">
             <img
-              src="/cosmic-icon.svg"
+              src={COSMIC_ICON_URL}
               alt={state.language === 'PL' ? 'Kosmiczna ikona' : 'Cosmic icon'}
               className="w-10 h-10 drop-shadow-[0_0_12px_rgba(124,243,255,0.45)]"
             />
