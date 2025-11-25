@@ -19,11 +19,9 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
   };
 
   const handleJumpTo = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      if (!e || !e.target) return;
-      const val = e.target.value;
-      if (val) {
-          onStateChange({ targetBody: val });
-      }
+      const val = e?.target?.value;
+      if (!val) return;
+      onStateChange({ targetBody: val });
   };
 
   // Filter objects for the dropdown
@@ -178,8 +176,9 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
                 value={state.timeScale}
                 disabled={state.isRealTime}
                 onChange={(e) => {
-                    if (e && e.target) {
-                        onStateChange({ timeScale: parseFloat(e.target.value) });
+                    const newValue = e?.target?.value;
+                    if (newValue !== undefined) {
+                        onStateChange({ timeScale: parseFloat(newValue) });
                     }
                 }}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 disabled:opacity-50"
