@@ -3,6 +3,7 @@ import React from 'react';
 import { AppState } from '../types';
 import { Play, Clock, Info, Languages, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, MousePointer2 } from 'lucide-react';
 import { UI_TRANSLATIONS, SOLAR_SYSTEM_DATA, SUN_DATA } from '../constants';
+import { resolveWithBase } from '../utils/basePath';
 
 interface UIOverlayProps {
   state: AppState;
@@ -12,6 +13,7 @@ interface UIOverlayProps {
 
 const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCamera }) => {
   const t = UI_TRANSLATIONS[state.language];
+  const iconUrl = resolveWithBase('cosmic-icon.svg');
 
   const dispatchMove = (x: number, y: number) => {
       const event = new CustomEvent('camera-move', { detail: { x, y } });
@@ -19,11 +21,9 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
   };
 
   const handleJumpTo = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      if (!e || !e.target) return;
-      const val = e.target.value;
-      if (val) {
-          onStateChange({ targetBody: val });
-      }
+      const val = e?.target?.value;
+      if (!val) return;
+      onStateChange({ targetBody: val });
   };
 
   // Filter objects for the dropdown
@@ -37,12 +37,21 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
       {/* Header */}
       <div className="flex justify-between items-start pointer-events-auto">
         <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 text-white shadow-2xl max-w-md">
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-            {t.title}
-          </h1>
-          <p className="text-sm text-gray-300 mt-1">
-            {state.viewMode === 'SOLAR_DETAILED' ? t.subtitleDetailed : t.subtitleGalaxy}
-          </p>
+          <div className="flex items-center gap-3">
+            <img
+              src={iconUrl}
+              alt={state.language === 'PL' ? 'Kosmiczna ikona' : 'Cosmic icon'}
+              className="w-10 h-10 drop-shadow-[0_0_12px_rgba(124,243,255,0.45)]"
+            />
+            <div>
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                {t.title}
+              </h1>
+              <p className="text-sm text-gray-300 mt-1">
+                {state.viewMode === 'SOLAR_DETAILED' ? t.subtitleDetailed : t.subtitleGalaxy}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 items-end">
@@ -178,8 +187,9 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
                 value={state.timeScale}
                 disabled={state.isRealTime}
                 onChange={(e) => {
-                    if (e && e.target) {
-                        onStateChange({ timeScale: parseFloat(e.target.value) });
+                    const newValue = e?.target?.value;
+                    if (newValue !== undefined) {
+                        onStateChange({ timeScale: parseFloat(newValue) });
                     }
                 }}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500 disabled:opacity-50"
