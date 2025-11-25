@@ -19,6 +19,10 @@ View your app in AI Studio: https://ai.studio/apps/drive/1CcbRK82SnyarNXhSMfnt9p
 3. Run the app:
    `npm run dev`
 
+## Deployment note
+
+When serving the app from a subpath (e.g., GitHub Pages), set Vite's `base` option so assets like the cosmic favicon and overlay logo resolve correctly through `import.meta.env.BASE_URL`.
+
 ## How to approve and merge when you are the only reviewer
 
 GitHub does not allow authors to approve their own pull requests, so you have a few options when you are the only collaborator:
