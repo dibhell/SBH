@@ -1,10 +1,11 @@
 
-import React, { useRef, useMemo, useState, useLayoutEffect } from 'react';
+import React, { useRef, useMemo, useState, useLayoutEffect, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html, Trail, MeshDistortMaterial, Text } from '@react-three/drei';
+import { Html, Trail, MeshDistortMaterial, Text, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 import { CelestialBodyData, SUN_DATA } from '../constants';
 import { Language } from '../types';
+import { BLANK_TEXTURE_DATA_URL, EARTH_CLOUDS_TEXTURE, EARTH_NIGHT_TEXTURE, getBodyTextureUrl, getRingTextureUrl } from '../textures';
 
 // Augment React's JSX namespace for R3F elements
 declare module 'react' {
@@ -135,17 +136,22 @@ const OrbitLine: React.FC<OrbitLineProps> = ({
   );
 };
 
-const PlanetRing: React.FC<{ ring: NonNullable<CelestialBodyData['ring']> }> = ({ ring }) => {
+const PlanetRing: React.FC<{
+    ring: NonNullable<CelestialBodyData['ring']>;
+    texture?: THREE.Texture | null;
+    hasTexture?: boolean;
+}> = ({ ring, texture, hasTexture }) => {
     return (
         <mesh rotation={[-Math.PI / 2.2, 0, 0]}>
             <ringGeometry args={[ring.inner, ring.outer, 64]} />
             <meshStandardMaterial 
-                color={ring.color} 
+                map={hasTexture ? texture ?? undefined : undefined}
+                color={hasTexture ? undefined : ring.color} 
                 side={THREE.DoubleSide} 
                 transparent 
-                opacity={0.6} 
+                opacity={hasTexture ? 0.9 : 0.6} 
                 emissive={ring.color}
-                emissiveIntensity={0.2}
+                emissiveIntensity={hasTexture ? 0.4 : 0.2}
             />
         </mesh>
     );
@@ -174,6 +180,18 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const isStar = data.type === 'star';
   const isBlackHole = data.type === 'blackhole';
   const isGiant = isStar || isBlackHole;
+  const isEarth = data.id === 'earth';
+
+  const surfaceTextureUrl = useMemo(() => getBodyTextureUrl(data.id, data.type), [data.id, data.type]);
+  const surfaceTexture = useTexture(surfaceTextureUrl ?? BLANK_TEXTURE_DATA_URL);
+  const hasSurfaceTexture = Boolean(surfaceTextureUrl);
+
+  const ringTextureUrl = useMemo(() => (data.ring ? getRingTextureUrl(data.id) : undefined), [data.id, data.ring]);
+  const ringTexture = useTexture(ringTextureUrl ?? BLANK_TEXTURE_DATA_URL);
+  const hasRingTexture = Boolean(ringTextureUrl);
+
+  const earthNightTexture = useTexture(isEarth ? EARTH_NIGHT_TEXTURE : BLANK_TEXTURE_DATA_URL);
+  const earthCloudTexture = useTexture(isEarth ? EARTH_CLOUDS_TEXTURE : BLANK_TEXTURE_DATA_URL);
 
   // Scaling logic for labels of massive objects
   const labelDistanceFactor = isGiant && data.radius > 50 ? Math.max(100, data.radius * 2) : 50;
@@ -182,6 +200,47 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const inclinationRad = (data.inclination || 0) * (Math.PI / 180);
   const eccentricity = data.eccentricity || 0;
   const omega = ((data.argumentOfPeriapsis || 0) * Math.PI) / 180;
+
+  useEffect(() => {
+    if (surfaceTexture) {
+        surfaceTexture.colorSpace = THREE.SRGBColorSpace;
+        surfaceTexture.anisotropy = 8;
+        surfaceTexture.wrapS = surfaceTexture.wrapT = THREE.ClampToEdgeWrapping;
+    }
+    if (ringTexture) {
+        ringTexture.colorSpace = THREE.SRGBColorSpace;
+        ringTexture.anisotropy = 8;
+        ringTexture.wrapS = ringTexture.wrapT = THREE.ClampToEdgeWrapping;
+    }
+    if (earthNightTexture) {
+        earthNightTexture.colorSpace = THREE.SRGBColorSpace;
+        earthNightTexture.anisotropy = 8;
+    }
+    if (earthCloudTexture) {
+        earthCloudTexture.colorSpace = THREE.SRGBColorSpace;
+        earthCloudTexture.anisotropy = 8;
+    }
+  }, [earthCloudTexture, earthNightTexture, ringTexture, surfaceTexture]);
+
+  const accretionTexture = useMemo(() => {
+    if (!isBlackHole) return null;
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, size * 0.05, size / 2, size / 2, size * 0.5);
+    gradient.addColorStop(0, '#ffd27f');
+    gradient.addColorStop(0.4, '#ff9900');
+    gradient.addColorStop(0.65, '#7a1f00');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    return tex;
+  }, [isBlackHole]);
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
@@ -261,25 +320,31 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
                 {/* Event Horizon */}
                 <mesh ref={planetRef} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
                     <sphereGeometry args={[data.radius, 64, 64]} />
-                    <meshBasicMaterial color="black" />
+                    <meshStandardMaterial color="#0a0a0a" metalness={1} roughness={0} />
                 </mesh>
                 {/* Accretion Disk Inner */}
                 <mesh ref={accretionRef} rotation={[Math.PI / 2.5, 0, 0]}>
                     <ringGeometry args={[data.radius * 1.2, data.radius * 4, 64]} />
-                    {/* Animated distorted material for accretion disk could go here, simplifying for performance */}
                     <meshStandardMaterial 
-                        color={new THREE.Color("#ff5500")} 
+                        map={accretionTexture ?? undefined}
+                        color={accretionTexture ? undefined : new THREE.Color("#ff5500")} 
                         emissive="#ff2200"
                         emissiveIntensity={2}
                         transparent 
-                        opacity={0.8} 
+                        opacity={0.9} 
                         side={THREE.DoubleSide} 
                     />
                 </mesh>
                  {/* Accretion Disk Outer Glow */}
                  <mesh rotation={[Math.PI / 2.5, 0, 0]}>
                     <ringGeometry args={[data.radius * 4, data.radius * 8, 64]} />
-                    <meshBasicMaterial color="#aa0000" transparent opacity={0.2} side={THREE.DoubleSide} />
+                    <meshBasicMaterial 
+                        map={accretionTexture ?? undefined}
+                        color={accretionTexture ? undefined : "#aa0000"} 
+                        transparent 
+                        opacity={0.35} 
+                        side={THREE.DoubleSide} 
+                    />
                 </mesh>
                 {/* Glow */}
                 <pointLight intensity={5} distance={data.radius * 15} decay={2} color="#FF4500" />
@@ -331,13 +396,34 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             >
                 <sphereGeometry args={[data.radius, 64, 64]} />
                 <meshStandardMaterial 
-                    color={data.color}
-                    roughness={data.type === 'planet' ? 0.7 : 0.9}
-                    metalness={data.type === 'planet' ? 0.2 : 0.1}
-                    emissive={data.color}
-                    emissiveIntensity={0.05} // Slight ambient glow so they aren't pitch black in shadow
+                    map={hasSurfaceTexture ? surfaceTexture : undefined}
+                    color={hasSurfaceTexture ? '#ffffff' : data.color}
+                    roughness={hasSurfaceTexture ? 0.9 : data.type === 'planet' ? 0.7 : 0.9}
+                    metalness={hasSurfaceTexture ? 0.1 : data.type === 'planet' ? 0.2 : 0.1}
+                    emissive={isEarth ? '#ffffff' : hasSurfaceTexture ? '#0a0a0a' : data.color}
+                    emissiveMap={isEarth ? earthNightTexture : undefined}
+                    emissiveIntensity={
+                        isEarth 
+                        ? 0.35 
+                        : hasSurfaceTexture 
+                        ? 0.08 
+                        : 0.05
+                    } // Slight ambient glow so they aren't pitch black in shadow
                 />
             </mesh>
+            {isEarth && (
+                <mesh scale={[1.02, 1.02, 1.02]}>
+                    <sphereGeometry args={[data.radius, 64, 64]} />
+                    <meshStandardMaterial 
+                        map={earthCloudTexture}
+                        alphaMap={earthCloudTexture}
+                        transparent 
+                        opacity={0.6}
+                        depthWrite={false}
+                        side={THREE.DoubleSide}
+                    />
+                </mesh>
+            )}
         </group>
     );
   }
@@ -374,7 +460,13 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             </>
         )}
 
-        {data.ring && <PlanetRing ring={data.ring} />}
+        {data.ring && (
+            <PlanetRing 
+                ring={data.ring} 
+                texture={hasRingTexture ? ringTexture : undefined} 
+                hasTexture={hasRingTexture} 
+            />
+        )}
 
         {/* Labels - Enhanced for readability on huge objects */}
         {showLabels && (
