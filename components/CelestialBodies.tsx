@@ -5,7 +5,8 @@ import { Html, Trail, MeshDistortMaterial, Text, useTexture } from '@react-three
 import * as THREE from 'three';
 import { CelestialBodyData, SUN_DATA } from '../constants';
 import { Language } from '../types';
-import { BLANK_TEXTURE_DATA_URL, EARTH_CLOUDS_TEXTURE, EARTH_NIGHT_TEXTURE, getBodyTextureUrl, getRingTextureUrl } from '../textures';
+import { BLANK_TEXTURE_DATA_URL, EARTH_CLOUDS_TEXTURE, EARTH_NIGHT_TEXTURE, getBodyTextureUrl, getRingTextureUrl, SUN_TEXTURE } from '../textures';
+import { getRotationSpeed } from '../rotations';
 
 // Augment React's JSX namespace for R3F elements
 declare module 'react' {
@@ -192,6 +193,10 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
 
   const earthNightTexture = useTexture(isEarth ? EARTH_NIGHT_TEXTURE : BLANK_TEXTURE_DATA_URL);
   const earthCloudTexture = useTexture(isEarth ? EARTH_CLOUDS_TEXTURE : BLANK_TEXTURE_DATA_URL);
+  const spinSpeed = useMemo(
+    () => getRotationSpeed(data.id, data.type, data.rotationSpeed, timeScale),
+    [data.id, data.rotationSpeed, data.type, timeScale]
+  );
 
   // Scaling logic for labels of massive objects
   const labelDistanceFactor = isGiant && data.radius > 50 ? Math.max(100, data.radius * 2) : 50;
@@ -295,7 +300,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
 
     // Body Rotation
     if (planetRef.current) {
-      planetRef.current.rotation.y += data.rotationSpeed * delta;
+      planetRef.current.rotation.y += spinSpeed * delta;
     }
     if (accretionRef.current) {
        accretionRef.current.rotation.z -= data.rotationSpeed * 2 * delta; 
@@ -373,20 +378,6 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     // Planets and others
     return (
         <group>
-             {/* Atmosphere Glow for larger planets */}
-             {data.radius > 1 && (
-                <mesh scale={[1.2, 1.2, 1.2]}>
-                    <sphereGeometry args={[data.radius, 32, 32]} />
-                    <meshBasicMaterial 
-                        color={data.color} 
-                        transparent 
-                        opacity={0.15} 
-                        side={THREE.BackSide}
-                        blending={THREE.AdditiveBlending}
-                    />
-                </mesh>
-            )}
-
             <mesh 
                 ref={planetRef}
                 onPointerOver={() => setHover(true)}
@@ -668,9 +659,67 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
     const displayName = language === 'PL' ? SUN_DATA.namePL : SUN_DATA.name;
     const description = language === 'PL' ? SUN_DATA.descriptionPL : SUN_DATA.description;
     const typeLabel = BODY_TYPE_TRANSLATIONS['star'][language];
+    const sunTexture = useTexture(SUN_TEXTURE);
+    useEffect(() => {
+        if (sunTexture) {
+            sunTexture.colorSpace = THREE.SRGBColorSpace;
+            sunTexture.anisotropy = 8;
+        }
+    }, [sunTexture]);
     
     const sunGroupRef = useRef<THREE.Group>(null);
+    const sunSurfaceRef = useRef<THREE.Mesh>(null);
     const angleRef = useRef(0);
+    const sunSpin = useMemo(() => getRotationSpeed('sun', 'star', 0.0004, timeScale), [timeScale]);
+    const flareTexture = useMemo(() => {
+        const size = 512;
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return null;
+        ctx.translate(size / 2, size / 2);
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.3;
+            const length = size * (0.2 + Math.random() * 0.25);
+            const width = size * 0.05;
+            const grad = ctx.createLinearGradient(0, 0, length, 0);
+            grad.addColorStop(0, 'rgba(255,255,255,0.9)');
+            grad.addColorStop(0.3, 'rgba(255,200,80,0.7)');
+            grad.addColorStop(1, 'rgba(255,80,0,0)');
+            ctx.save();
+            ctx.rotate(angle);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.moveTo(0, -width);
+            ctx.lineTo(length, 0);
+            ctx.lineTo(0, width);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+        tex.needsUpdate = true;
+        return tex;
+    }, []);
+
+    const prominences = useMemo(() => {
+        const entries = [];
+        for (let i = 0; i < 6; i++) {
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            const radius = 6.5;
+            const pos = new THREE.Vector3(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.cos(phi),
+                radius * Math.sin(phi) * Math.sin(theta)
+            );
+            const scale = 1.5 + Math.random();
+            entries.push({ pos, rotY: Math.random() * Math.PI * 2, scale });
+        }
+        return entries;
+    }, []);
 
     // Wobble Animation (Barycentric Orbit)
     useFrame((_, delta) => {
@@ -695,6 +744,9 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
             const z = Math.sin(currentAngle) * distance;
             
             sunGroupRef.current.position.set(x, 0, z);
+        }
+        if (sunSurfaceRef.current) {
+            sunSurfaceRef.current.rotation.y += sunSpin * delta;
         }
     });
 
@@ -733,33 +785,50 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
 
             <group ref={sunGroupRef}>
                 
-                {/* Main Sun Body with Distortion */}
+                 {/* Main Sun Body with animated surface */}
                 <mesh 
                     onPointerOver={() => setHover(true)}
                     onPointerOut={() => setHover(false)}
+                    ref={sunSurfaceRef}
                 >
-                    <sphereGeometry args={[6, 64, 64]} />
-                    <MeshDistortMaterial 
-                        color="#FFD700" 
-                        emissive="#FF8C00"
-                        emissiveIntensity={2}
-                        roughness={0}
-                        distort={0.4}
-                        speed={1.5}
+                    <sphereGeometry args={[6, 128, 128]} />
+                    <meshStandardMaterial 
+                        map={sunTexture}
+                        emissiveMap={sunTexture}
+                        emissiveIntensity={2.4}
+                        emissive="#ffffff"
+                        roughness={0.1}
+                        metalness={0.05}
+                        color="#ffffff"
                     />
                 </mesh>
+                
+                {/* Prominence sprites */}
+                {flareTexture && prominences.map((p, idx) => (
+                    <mesh key={idx} position={p.pos} rotation={[0, p.rotY, 0]}>
+                        <planeGeometry args={[4 * p.scale, 2 * p.scale]} />
+                        <meshBasicMaterial 
+                            map={flareTexture} 
+                            transparent 
+                            opacity={0.9} 
+                            depthWrite={false} 
+                            blending={THREE.AdditiveBlending}
+                            side={THREE.DoubleSide}
+                        />
+                    </mesh>
+                ))}
                 
                 {/* Light Source */}
                 <pointLight intensity={3} distance={15000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
                 
                 {/* Corona Glow */}
-                <mesh scale={[1.4, 1.4, 1.4]}>
+                <mesh scale={[1.35, 1.35, 1.35]}>
                     <sphereGeometry args={[6, 32, 32]} />
-                    <meshBasicMaterial color="#FF4500" transparent opacity={0.15} side={THREE.BackSide}/>
+                    <meshBasicMaterial color="#FFB347" transparent opacity={0.2} side={THREE.BackSide} blending={THREE.AdditiveBlending}/>
                 </mesh>
-                <mesh scale={[2, 2, 2]}>
+                <mesh scale={[1.8, 1.8, 1.8]}>
                     <sphereGeometry args={[6, 32, 32]} />
-                    <meshBasicMaterial color="#FF8C00" transparent opacity={0.05} side={THREE.BackSide}/>
+                    <meshBasicMaterial color="#FF6B00" transparent opacity={0.08} side={THREE.BackSide} blending={THREE.AdditiveBlending}/>
                 </mesh>
 
                 {showLabels && (

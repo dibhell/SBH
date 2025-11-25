@@ -43,3 +43,4 @@ export const getRingTextureUrl = (id: string) => RING_TEXTURES[id];
 
 export const EARTH_NIGHT_TEXTURE = texture('2k_earth_nightmap.jpg');
 export const EARTH_CLOUDS_TEXTURE = texture('2k_earth_clouds.jpg');
+export const SUN_TEXTURE = texture('2k_sun.jpg');
