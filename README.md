@@ -21,7 +21,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1CcbRK82SnyarNXhSMfnt9p
 
 ## Deployment note
 
-When serving the app from a subpath (e.g., GitHub Pages), set Vite's `base` option so assets like the cosmic favicon and overlay logo resolve correctly through `import.meta.env.BASE_URL`.
+When serving the app from a subpath (e.g., GitHub Pages), set Vite's `base` option so assets like the cosmic favicon and overlay logo resolve correctly through `import.meta.env.BASE_URL`. Make sure the base value ends with a trailing `/` so generated asset paths stay valid.
 
 ## How to approve and merge when you are the only reviewer
 
