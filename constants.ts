@@ -19,6 +19,7 @@ export interface CelestialBodyData {
   moons?: CelestialBodyData[];
   orbitColor?: string;
   ring?: { inner: number; outer: number; color: string; };
+  axialTilt?: number; // Obliquity in degrees
 }
 
 export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
@@ -35,6 +36,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 4.1,
     rotationSpeed: 0.02,
     inclination: 7.0,
+    axialTilt: 0.01,
     eccentricity: 0.205,
     argumentOfPeriapsis: 29,
     orbitColor: '#555',
@@ -52,6 +54,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 1.6,
     rotationSpeed: -0.01,
     inclination: 3.4,
+    axialTilt: 177.3,
     eccentricity: 0.007,
     argumentOfPeriapsis: 55,
     orbitColor: '#766',
@@ -69,6 +72,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 1.0,
     rotationSpeed: 0.05,
     inclination: 0,
+    axialTilt: 23.44,
     eccentricity: 0.017,
     argumentOfPeriapsis: 114,
     orbitColor: '#357',
@@ -82,10 +86,11 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon',
         radius: 0.4,
         distance: 4.5,
-        color: '#DDDDDD',
-        speed: 12.0,
-        rotationSpeed: 0.01,
-        inclination: 5.1,
+    color: '#DDDDDD',
+    speed: 12.0,
+    rotationSpeed: 0.01,
+    inclination: 5.1,
+    axialTilt: 6.7,
         eccentricity: 0.05
       }
     ]
@@ -137,6 +142,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.53,
     rotationSpeed: 0.04,
     inclination: 1.85,
+    axialTilt: 25.2,
     eccentricity: 0.094,
     argumentOfPeriapsis: 286,
     orbitColor: '#733',
@@ -183,6 +189,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.45,
     rotationSpeed: 0.08,
     inclination: 7.1,
+    axialTilt: 29.0,
     eccentricity: 0.089,
     orbitColor: '#444',
   },
@@ -199,6 +206,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.44,
     rotationSpeed: 0.08,
     inclination: 34.8, // Very High
+    axialTilt: 30,
     eccentricity: 0.23,
     argumentOfPeriapsis: 310,
     orbitColor: '#444',
@@ -216,6 +224,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.43,
     rotationSpeed: 0.09,
     inclination: 3.8,
+    axialTilt: 3,
     eccentricity: 0.11,
     orbitColor: '#333',
   },
@@ -232,6 +241,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.4,
     rotationSpeed: 0.05,
     inclination: 10.6,
+    axialTilt: 4,
     eccentricity: 0.076,
     argumentOfPeriapsis: 73,
     orbitColor: '#555',
@@ -249,6 +259,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.2, // Highly variable in reality
     rotationSpeed: 0.1,
     inclination: 162.3, // Retrograde
+    axialTilt: 0,
     eccentricity: 0.967, // EXTREME ELLIPSE
     argumentOfPeriapsis: 111,
     orbitColor: '#87CEFA',
@@ -266,6 +277,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.08,
     rotationSpeed: 0.1,
     inclination: 1.3,
+    axialTilt: 3.1,
     eccentricity: 0.048,
     argumentOfPeriapsis: 273,
     orbitColor: '#652',
@@ -279,9 +291,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon', 
         radius: 0.5, 
         distance: 6, 
-        color: '#F8C291', 
-        speed: 8, 
-        rotationSpeed: 0.01 
+    color: '#F8C291', 
+    speed: 8, 
+        rotationSpeed: 0.01,
+        axialTilt: 0
       },
       { 
         id: 'europa', 
@@ -292,9 +305,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon', 
         radius: 0.45, 
         distance: 7.5, 
-        color: '#DFF9FB', 
-        speed: 6, 
-        rotationSpeed: 0.01 
+    color: '#DFF9FB', 
+    speed: 6, 
+        rotationSpeed: 0.01,
+        axialTilt: 0
       },
       { 
         id: 'ganymede', 
@@ -305,9 +319,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon', 
         radius: 0.6, 
         distance: 9.5, 
-        color: '#95A5A6', 
-        speed: 4, 
-        rotationSpeed: 0.01 
+    color: '#95A5A6', 
+    speed: 4, 
+        rotationSpeed: 0.01,
+        axialTilt: 0
       },
       { 
         id: 'callisto', 
@@ -318,9 +333,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon', 
         radius: 0.58, 
         distance: 11.5, 
-        color: '#5D4C46', 
-        speed: 3, 
-        rotationSpeed: 0.01 
+    color: '#5D4C46', 
+    speed: 3, 
+        rotationSpeed: 0.01,
+        axialTilt: 0
       },
     ]
   },
@@ -337,6 +353,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.03,
     rotationSpeed: 0.09,
     inclination: 2.48,
+    axialTilt: 26.7,
     eccentricity: 0.056,
     argumentOfPeriapsis: 339,
     orbitColor: '#654',
@@ -351,9 +368,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon', 
         radius: 0.7, 
         distance: 10, 
-        color: '#F39C12', 
-        speed: 3, 
-        rotationSpeed: 0.01 
+    color: '#F39C12', 
+    speed: 3, 
+        rotationSpeed: 0.01,
+        axialTilt: 0
       },
       { 
         id: 'enceladus', 
@@ -364,9 +382,10 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
         type: 'moon', 
         radius: 0.3, 
         distance: 6, 
-        color: '#FFFFFF', 
-        speed: 5, 
-        rotationSpeed: 0.01 
+    color: '#FFFFFF', 
+    speed: 5, 
+        rotationSpeed: 0.01,
+        axialTilt: 0
       },
     ]
   },
@@ -383,15 +402,16 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.01,
     rotationSpeed: 0.06,
     inclination: 0.77,
+    axialTilt: 97.8,
     eccentricity: 0.046,
     argumentOfPeriapsis: 96,
     orbitColor: '#256',
     moons: [
-       { id: 'miranda', name: 'Miranda', namePL: 'Miranda', description: "Features a strange, jigsaw-puzzle landscape.", descriptionPL: "Posiada dziwny krajobraz przypominający puzzle.", type: 'moon', radius: 0.2, distance: 3.5, color: '#E0E0E0', speed: 6, rotationSpeed: 0.02 },
-       { id: 'ariel', name: 'Ariel', namePL: 'Ariel', description: "Likely has the youngest surface of Uranus' moons.", descriptionPL: "Prawdopodobnie ma najmłodszą powierzchnię wśród księżyców Urana.", type: 'moon', radius: 0.3, distance: 4.5, color: '#D3D3D3', speed: 5, rotationSpeed: 0.02 },
-       { id: 'umbriel', name: 'Umbriel', namePL: 'Umbriel', description: "A dark, mysterious moon.", descriptionPL: "Ciemny, tajemniczy księżyc.", type: 'moon', radius: 0.3, distance: 5.5, color: '#A9A9A9', speed: 4.5, rotationSpeed: 0.02 },
-       { id: 'titania', name: 'Titania', namePL: 'Tytania', description: "The largest moon of Uranus.", descriptionPL: "Największy księżyc Urana.", type: 'moon', radius: 0.4, distance: 7.0, color: '#C0C0C0', speed: 3.5, rotationSpeed: 0.02 },
-       { id: 'oberon', name: 'Oberon', namePL: 'Oberon', description: "The outermost major moon, heavily cratered.", descriptionPL: "Najdalszy główny księżyc, mocno pokraterowany.", type: 'moon', radius: 0.38, distance: 8.5, color: '#B0B0B0', speed: 3, rotationSpeed: 0.02 },
+       { id: 'miranda', name: 'Miranda', namePL: 'Miranda', description: "Features a strange, jigsaw-puzzle landscape.", descriptionPL: "Posiada dziwny krajobraz przypominający puzzle.", type: 'moon', radius: 0.2, distance: 3.5, color: '#E0E0E0', speed: 6, rotationSpeed: 0.02, axialTilt: 0 },
+       { id: 'ariel', name: 'Ariel', namePL: 'Ariel', description: "Likely has the youngest surface of Uranus' moons.", descriptionPL: "Prawdopodobnie ma najmłodszą powierzchnię wśród księżyców Urana.", type: 'moon', radius: 0.3, distance: 4.5, color: '#D3D3D3', speed: 5, rotationSpeed: 0.02, axialTilt: 0 },
+       { id: 'umbriel', name: 'Umbriel', namePL: 'Umbriel', description: "A dark, mysterious moon.", descriptionPL: "Ciemny, tajemniczy księżyc.", type: 'moon', radius: 0.3, distance: 5.5, color: '#A9A9A9', speed: 4.5, rotationSpeed: 0.02, axialTilt: 0 },
+       { id: 'titania', name: 'Titania', namePL: 'Tytania', description: "The largest moon of Uranus.", descriptionPL: "Największy księżyc Urana.", type: 'moon', radius: 0.4, distance: 7.0, color: '#C0C0C0', speed: 3.5, rotationSpeed: 0.02, axialTilt: 0 },
+       { id: 'oberon', name: 'Oberon', namePL: 'Oberon', description: "The outermost major moon, heavily cratered.", descriptionPL: "Najdalszy główny księżyc, mocno pokraterowany.", type: 'moon', radius: 0.38, distance: 8.5, color: '#B0B0B0', speed: 3, rotationSpeed: 0.02, axialTilt: 0 },
     ]
   },
   {
@@ -407,6 +427,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.006,
     rotationSpeed: 0.06,
     inclination: 1.77,
+    axialTilt: 28.3,
     eccentricity: 0.01,
     argumentOfPeriapsis: 273,
     orbitColor: '#225',
@@ -439,6 +460,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     speed: 0.004,
     rotationSpeed: 0.01,
     inclination: 17.1,
+    axialTilt: 122.5,
     eccentricity: 0.248, // HIGH ECCENTRICITY
     argumentOfPeriapsis: 113,
     orbitColor: '#444',

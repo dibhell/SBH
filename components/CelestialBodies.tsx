@@ -169,13 +169,29 @@ const BODY_TYPE_TRANSLATIONS: Record<string, { EN: string, PL: string }> = {
     blackhole: { EN: 'Black Hole', PL: 'Czarna Dziura' },
 };
 
+const getSeasonalOrbitAngle = (id: string) => {
+  if (id === 'earth') {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = (now.getTime() - start.getTime()) / 86400000;
+    const yearLength = 365.25;
+    const seasonalPhase = (dayOfYear / yearLength) * Math.PI * 2;
+    const vernalEquinoxOffset = -Math.PI / 2; // set March equinox near +X axis
+    return seasonalPhase + vernalEquinoxOffset;
+  }
+  return Math.random() * Math.PI * 2;
+};
+
 export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime, showLabels, language }) => {
   const meshRef = useRef<THREE.Group>(null);
   const planetRef = useRef<THREE.Mesh>(null);
   const accretionRef = useRef<THREE.Mesh>(null);
+  const tiltRef = useRef<THREE.Group>(null);
+  const axialTilt = data.axialTilt ?? 0;
   
   // Angle state
-  const angleRef = useRef(Math.random() * Math.PI * 2);
+  const initialAngle = useMemo(() => getSeasonalOrbitAngle(data.id), [data.id]);
+  const angleRef = useRef(initialAngle);
 
   const isSmallBody = ['dwarf', 'asteroid', 'comet', 'interstellar'].includes(data.type);
   const isStar = data.type === 'star';
@@ -197,6 +213,11 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     () => getRotationSpeed(data.id, data.type, data.rotationSpeed, timeScale),
     [data.id, data.rotationSpeed, data.type, timeScale]
   );
+  useEffect(() => {
+    if (tiltRef.current) {
+        tiltRef.current.rotation.z = THREE.MathUtils.degToRad(axialTilt);
+    }
+  }, [axialTilt]);
 
   // Scaling logic for labels of massive objects
   const labelDistanceFactor = isGiant && data.radius > 50 ? Math.max(100, data.radius * 2) : 50;
@@ -377,7 +398,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
 
     // Planets and others
     return (
-        <group>
+        <group ref={tiltRef}>
             <mesh 
                 ref={planetRef}
                 onPointerOver={() => setHover(true)}
