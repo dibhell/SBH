@@ -35,12 +35,21 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
       {/* Header */}
       <div className="flex justify-between items-start pointer-events-auto">
         <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 text-white shadow-2xl max-w-md">
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-            {t.title}
-          </h1>
-          <p className="text-sm text-gray-300 mt-1">
-            {state.viewMode === 'SOLAR_DETAILED' ? t.subtitleDetailed : t.subtitleGalaxy}
-          </p>
+          <div className="flex items-center gap-3">
+            <img
+              src="/cosmic-icon.svg"
+              alt={state.language === 'PL' ? 'Kosmiczna ikona' : 'Cosmic icon'}
+              className="w-10 h-10 drop-shadow-[0_0_12px_rgba(124,243,255,0.45)]"
+            />
+            <div>
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                {t.title}
+              </h1>
+              <p className="text-sm text-gray-300 mt-1">
+                {state.viewMode === 'SOLAR_DETAILED' ? t.subtitleDetailed : t.subtitleGalaxy}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 items-end">
