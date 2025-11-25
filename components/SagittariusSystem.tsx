@@ -72,14 +72,25 @@ export const SagittariusSystem: React.FC<{ timeScale: number }> = ({ timeScale }
         {/* Black Hole Center */}
         <mesh>
             <sphereGeometry args={[GALAXY_DATA.blackHoleRadius, 64, 64]} />
-            <meshBasicMaterial color="#000000" />
+            <meshStandardMaterial
+                color="#000000"
+                roughness={1}
+                metalness={0}
+                emissive="#000000"
+            />
         </mesh>
 
         {/* Accretion Disk (Visual Stylized) */}
         <group rotation={[Math.PI / 3, 0, 0]}>
             <mesh ref={diskRef}>
                 <torusGeometry args={[GALAXY_DATA.blackHoleRadius * 2.5, 8, 2, 100]} />
-                <meshBasicMaterial color="#FF6B00" transparent opacity={0.6} />
+                <meshStandardMaterial
+                    color="#FF6B00"
+                    emissive="#FF6B00"
+                    emissiveIntensity={0.8}
+                    transparent
+                    opacity={0.6}
+                />
             </mesh>
              {/* Glow */}
             <pointLight intensity={5} distance={300} color="#FF4500" />
@@ -89,11 +100,25 @@ export const SagittariusSystem: React.FC<{ timeScale: number }> = ({ timeScale }
         <group rotation={[Math.PI / 2, 0, 0]}>
             <mesh>
                  <ringGeometry args={[GALAXY_DATA.orbitRadius - 0.5, GALAXY_DATA.orbitRadius + 0.5, 128]} />
-                 <meshBasicMaterial color="#555" side={THREE.DoubleSide} transparent opacity={0.8} />
+                 <meshStandardMaterial
+                    color="#555"
+                    side={THREE.DoubleSide}
+                    transparent
+                    opacity={0.8}
+                    metalness={0}
+                    roughness={1}
+                 />
             </mesh>
             <mesh>
                  <ringGeometry args={[GALAXY_DATA.orbitRadius - 20, GALAXY_DATA.orbitRadius + 20, 128]} />
-                 <meshBasicMaterial color="#555" side={THREE.DoubleSide} transparent opacity={0.05} />
+                 <meshStandardMaterial
+                    color="#555"
+                    side={THREE.DoubleSide}
+                    transparent
+                    opacity={0.05}
+                    metalness={0}
+                    roughness={1}
+                 />
             </mesh>
         </group>
 
@@ -103,36 +128,74 @@ export const SagittariusSystem: React.FC<{ timeScale: number }> = ({ timeScale }
                 {/* Sun Marker */}
                 <mesh>
                     <sphereGeometry args={[4, 16, 16]} />
-                    <meshBasicMaterial color="#FFFF00" emissive="#FFFF00" emissiveIntensity={2} />
+                    <meshStandardMaterial
+                        color="#FFFF00"
+                        emissive="#FFFF00"
+                        emissiveIntensity={2}
+                        roughness={0.2}
+                        metalness={0.1}
+                    />
                 </mesh>
 
                  {/* Planetary Orbits Visual Hints - Shows it's a System */}
                  <mesh rotation={[Math.PI/2, 0, 0]}>
                     <ringGeometry args={[8, 8.5, 32]} />
-                    <meshBasicMaterial color="#444" side={THREE.DoubleSide} transparent opacity={0.5} />
+                    <meshStandardMaterial
+                        color="#444"
+                        side={THREE.DoubleSide}
+                        transparent
+                        opacity={0.5}
+                        roughness={1}
+                        metalness={0}
+                    />
                 </mesh>
                 <mesh rotation={[Math.PI/2, 0, 0]}>
                     <ringGeometry args={[12, 12.5, 32]} />
-                    <meshBasicMaterial color="#444" side={THREE.DoubleSide} transparent opacity={0.3} />
+                    <meshStandardMaterial
+                        color="#444"
+                        side={THREE.DoubleSide}
+                        transparent
+                        opacity={0.3}
+                        roughness={1}
+                        metalness={0}
+                    />
                 </mesh>
                 {/* Mini planet dots */}
                 <mesh position={[8.2, 0, 0]}>
                     <sphereGeometry args={[1, 8, 8]} />
-                    <meshBasicMaterial color="#22A6B3" />
+                    <meshStandardMaterial
+                        color="#22A6B3"
+                        roughness={0.7}
+                        metalness={0.2}
+                    />
                 </mesh>
                 <mesh position={[-12.2, 0, 0]}>
                     <sphereGeometry args={[1.5, 8, 8]} />
-                    <meshBasicMaterial color="#F9CA24" />
+                    <meshStandardMaterial
+                        color="#F9CA24"
+                        roughness={0.7}
+                        metalness={0.2}
+                    />
                 </mesh>
                 
                 {/* Trajectory Vector */}
                 <mesh position={[0, 0, 20]} rotation={[Math.PI/2, 0, 0]}>
                      <coneGeometry args={[2, 6, 8]} />
-                     <meshBasicMaterial color="#FFFF00" />
+                     <meshStandardMaterial
+                        color="#FFFF00"
+                        roughness={0.4}
+                        metalness={0.1}
+                     />
                 </mesh>
                 <mesh position={[0, 0, 10]} rotation={[Math.PI/2, 0, 0]}>
                      <cylinderGeometry args={[0.3, 0.3, 20]} />
-                     <meshBasicMaterial color="#FFFF00" opacity={0.5} transparent />
+                     <meshStandardMaterial
+                        color="#FFFF00"
+                        opacity={0.5}
+                        transparent
+                        roughness={0.4}
+                        metalness={0.1}
+                     />
                 </mesh>
 
                 <Text 
