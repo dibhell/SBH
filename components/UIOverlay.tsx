@@ -12,7 +12,8 @@ interface UIOverlayProps {
 
 const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCamera }) => {
   const t = UI_TRANSLATIONS[state.language];
-  const iconUrl = `${import.meta.env.BASE_URL}cosmic-icon.svg`;
+  const baseUrl = import.meta.env?.BASE_URL ?? '/';
+  const iconUrl = `${baseUrl}cosmic-icon.svg`;
 
   const dispatchMove = (x: number, y: number) => {
       const event = new CustomEvent('camera-move', { detail: { x, y } });
