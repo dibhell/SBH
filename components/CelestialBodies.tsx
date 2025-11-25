@@ -179,6 +179,10 @@ const getSeasonalOrbitAngle = (id: string) => {
     const vernalEquinoxOffset = -Math.PI / 2; // set March equinox near +X axis
     return seasonalPhase + vernalEquinoxOffset;
   }
+  if (id === 'sagittarius_a') {
+    // Place Sgr A* on the galactic-center vector so it doesn't occlude the Solar System
+    return Math.PI; // sit opposite the velocity arrow (positive X)
+  }
   return Math.random() * Math.PI * 2;
 };
 
@@ -399,30 +403,30 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     // Planets and others
     return (
         <group ref={tiltRef}>
-            <mesh 
-                ref={planetRef}
-                onPointerOver={() => setHover(true)}
-                onPointerOut={() => setHover(false)}
-                castShadow={true}
-                receiveShadow={true}
-            >
-                <sphereGeometry args={[data.radius, 64, 64]} />
-                <meshStandardMaterial 
-                    map={hasSurfaceTexture ? surfaceTexture : undefined}
-                    color={hasSurfaceTexture ? '#ffffff' : data.color}
-                    roughness={hasSurfaceTexture ? 0.9 : data.type === 'planet' ? 0.7 : 0.9}
-                    metalness={hasSurfaceTexture ? 0.1 : data.type === 'planet' ? 0.2 : 0.1}
-                    emissive={isEarth ? '#ffffff' : hasSurfaceTexture ? '#0a0a0a' : data.color}
-                    emissiveMap={isEarth ? earthNightTexture : undefined}
-                    emissiveIntensity={
-                        isEarth 
-                        ? 0.35 
-                        : hasSurfaceTexture 
-                        ? 0.08 
-                        : 0.05
-                    } // Slight ambient glow so they aren't pitch black in shadow
-                />
-            </mesh>
+    <mesh 
+        ref={planetRef}
+        onPointerOver={() => setHover(true)}
+        onPointerOut={() => setHover(false)}
+        castShadow={true}
+        receiveShadow={true}
+    >
+        <sphereGeometry args={[data.radius, 64, 64]} />
+        <meshStandardMaterial 
+            map={hasSurfaceTexture ? surfaceTexture : undefined}
+            color={hasSurfaceTexture ? '#f5f5f5' : data.color}
+            roughness={hasSurfaceTexture ? 0.8 : data.type === 'planet' ? 0.7 : 0.9}
+            metalness={hasSurfaceTexture ? 0.08 : data.type === 'planet' ? 0.2 : 0.1}
+            emissive={isEarth ? '#ffffff' : hasSurfaceTexture ? '#1a1a1a' : data.color}
+            emissiveMap={isEarth ? earthNightTexture : undefined}
+            emissiveIntensity={
+                isEarth 
+                ? 0.45 
+                : hasSurfaceTexture 
+                ? 0.14 
+                : 0.08
+            } // Slight ambient glow so they aren't pitch black in shadow
+        />
+    </mesh>
             {isEarth && (
                 <mesh scale={[1.02, 1.02, 1.02]}>
                     <sphereGeometry args={[data.radius, 64, 64]} />
