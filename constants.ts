@@ -254,7 +254,7 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     descriptionPL: "Kometa okresowa widoczna z Ziemi co 75-76 lat. To jedyna kometa widoczna gołym okiem, która może pojawić się dwukrotnie w ciągu ludzkiego życia. Jej powierzchnia pokryta jest ciemnym pyłem węglowym.",
     type: 'comet',
     radius: 0.25,
-    distance: 90, // Average/Visual position
+    distance: 800, // ~17.8 AU scaled (prevents solar collision)
     color: '#AEEEEE',
     speed: 0.2, // Highly variable in reality
     rotationSpeed: 0.1,
@@ -263,6 +263,24 @@ export const SOLAR_SYSTEM_DATA: CelestialBodyData[] = [
     eccentricity: 0.967, // EXTREME ELLIPSE
     argumentOfPeriapsis: 111,
     orbitColor: '#87CEFA',
+  },
+  {
+    id: '3i_atlas',
+    name: '3I/ATLAS',
+    namePL: '3I/ATLAS',
+    description: "Interstellar comet 3I/ATLAS on a hyperbolic path through the Solar System.",
+    descriptionPL: "Kometa międzygwiezdna 3I/ATLAS na trajektorii hiperbolicznej przez Układ Słoneczny.",
+    type: 'comet',
+    radius: 0.12,
+    distance: 300, // visual scale to show inbound leg
+    color: '#9dd6ff',
+    speed: 0.15,
+    rotationSpeed: 0.08,
+    inclination: 175.1,
+    axialTilt: 0,
+    eccentricity: 6.139,
+    argumentOfPeriapsis: 128.0,
+    orbitColor: '#7fc8ff',
   },
   {
     id: 'jupiter',
