@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, PerspectiveCamera, Loader } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -59,6 +59,20 @@ interface SceneProps {
 const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
   const controlsRef = useRef<any>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera>(null);
+  const highQuality = useMemo(() => {
+    if (typeof window === 'undefined') return true;
+    return !window.matchMedia('(max-width: 768px), (prefers-reduced-motion: reduce)').matches;
+  }, []);
+  const solarBodies = useMemo(
+    () =>
+      SOLAR_SYSTEM_DATA.filter((body) => {
+        if (!state.showGiantObjects && (body.type === 'star' || body.type === 'blackhole')) {
+          return false;
+        }
+        return true;
+      }),
+    [state.showGiantObjects]
+  );
 
   // Reset Camera Logic
   useEffect(() => {
@@ -161,7 +175,7 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
 
   return (
     <>
-    <Canvas className="w-full h-full bg-black" shadows>
+    <Canvas className="w-full h-full bg-black" dpr={highQuality ? [1, 1.5] : [0.75, 1]} shadows={false}>
       <PerspectiveCamera ref={cameraRef} makeDefault position={[0, 60, 90]} fov={50} far={20000} near={0.1} />
       
       <OrbitControls 
@@ -180,7 +194,7 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
       <ambientLight intensity={0.05} />
       
       {/* Background Stars - Increased radius */}
-      <Stars radius={18000} depth={50} count={8000} factor={4} saturation={0} fade speed={1} />
+      <Stars radius={18000} depth={50} count={highQuality ? 6000 : 2500} factor={4} saturation={0} fade speed={1} />
 
       {state.viewMode === 'SOLAR_DETAILED' ? (
         <group>
@@ -190,14 +204,9 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
             timeScale={state.timeScale}
             isRealTime={state.isRealTime}
             showStarDust={state.showStarDust}
+            targetBody={state.targetBody}
           />
-          {SOLAR_SYSTEM_DATA.filter(body => {
-              // Filtering Giant Objects
-              if (!state.showGiantObjects && (body.type === 'star' || body.type === 'blackhole')) {
-                  return false;
-              }
-              return true;
-          }).map((body) => (
+          {solarBodies.map((body) => (
             <CelestialBody 
               key={body.id} 
               data={body} 
@@ -205,6 +214,7 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
               isRealTime={state.isRealTime}
               showLabels={state.showLabels}
               language={state.language}
+              targetBody={state.targetBody}
             />
           ))}
         </group>
@@ -213,9 +223,11 @@ const Scene: React.FC<SceneProps> = ({ state, resetTrigger }) => {
       )}
 
       {/* Post Processing for Glow */}
-      <EffectComposer>
-        <Bloom luminanceThreshold={0.5} luminanceSmoothing={0.9} height={300} intensity={1.5} />
-      </EffectComposer>
+      {highQuality && (
+        <EffectComposer>
+          <Bloom luminanceThreshold={0.5} luminanceSmoothing={0.9} height={220} intensity={1.2} />
+        </EffectComposer>
+      )}
     </Canvas>
     <Loader />
     </>

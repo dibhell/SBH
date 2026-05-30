@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AppState } from '../types';
 import { Play, Clock, Info, Languages, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, MousePointer2 } from 'lucide-react';
 import { UI_TRANSLATIONS, SOLAR_SYSTEM_DATA, SUN_DATA } from '../constants';
@@ -26,10 +26,14 @@ const UIOverlay: React.FC<UIOverlayProps> = ({ state, onStateChange, onResetCame
   };
 
   // Filter objects for the dropdown
-  const jumpableObjects = SOLAR_SYSTEM_DATA.filter(b => {
-      if (!state.showGiantObjects && (b.type === 'star' || b.type === 'blackhole')) return false;
-      return true;
-  });
+  const jumpableObjects = useMemo(
+      () =>
+          SOLAR_SYSTEM_DATA.filter(b => {
+              if (!state.showGiantObjects && (b.type === 'star' || b.type === 'blackhole')) return false;
+              return true;
+          }),
+      [state.showGiantObjects]
+  );
 
   return (
     <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-10">

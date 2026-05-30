@@ -45,6 +45,7 @@ interface BodyProps {
   isRealTime: boolean;
   showLabels: boolean;
   language: Language;
+  targetBody?: string | null;
 }
 
 interface OrbitLineProps {
@@ -68,7 +69,7 @@ const OrbitLine: React.FC<OrbitLineProps> = ({
 }) => {
   const points = useMemo(() => {
     const pts = [];
-    const segments = 256; // Smoother lines
+    const segments = radius > 250 ? 160 : radius > 80 ? 128 : 72;
     // a = semi-major axis (radius)
     // e = eccentricity
     const a = radius;
@@ -169,6 +170,14 @@ const BODY_TYPE_TRANSLATIONS: Record<string, { EN: string, PL: string }> = {
     blackhole: { EN: 'Black Hole', PL: 'Czarna Dziura' },
 };
 
+const getBodySegments = (data: CelestialBodyData, isGiant: boolean, isSmallBody: boolean) => {
+  if (data.id === 'sun') return 64;
+  if (isGiant) return 48;
+  if (data.type === 'moon' || isSmallBody || data.radius < 0.5) return 24;
+  if (data.radius < 1.5) return 32;
+  return 48;
+};
+
 const getSeasonalOrbitAngle = (id: string) => {
   if (id === 'earth') {
     const now = new Date();
@@ -186,7 +195,7 @@ const getSeasonalOrbitAngle = (id: string) => {
   return Math.random() * Math.PI * 2;
 };
 
-export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime, showLabels, language }) => {
+export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime, showLabels, language, targetBody }) => {
   const meshRef = useRef<THREE.Group>(null);
   const planetRef = useRef<THREE.Mesh>(null);
   const accretionRef = useRef<THREE.Mesh>(null);
@@ -202,6 +211,9 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
   const isBlackHole = data.type === 'blackhole';
   const isGiant = isStar || isBlackHole;
   const isEarth = data.id === 'earth';
+  const bodySegments = useMemo(() => getBodySegments(data, isGiant, isSmallBody), [data, isGiant, isSmallBody]);
+  const trailColor = useMemo(() => new THREE.Color(data.color), [data.color]);
+  const selected = targetBody === data.id;
 
   const surfaceTextureUrl = useMemo(() => getBodyTextureUrl(data.id, data.type), [data.id, data.type]);
   const surfaceTexture = useTexture(surfaceTextureUrl ?? BLANK_TEXTURE_DATA_URL);
@@ -342,6 +354,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     : rawType.toUpperCase();
 
   const showTrail = !isSmallBody && data.type !== 'moon' && !isGiant && eccentricity < 0.2;
+  const shouldRenderLabel = showLabels && (hovered || selected || (!isSmallBody && data.type !== 'moon' && !isGiant));
   
   const renderBody = () => {
     if (isBlackHole) {
@@ -349,15 +362,15 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             <group>
                 {/* Event Horizon */}
                 <mesh ref={planetRef} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
-                    <sphereGeometry args={[data.radius, 64, 64]} />
+                    <sphereGeometry args={[data.radius, bodySegments, bodySegments]} />
                     <meshStandardMaterial color="#0a0a0a" metalness={1} roughness={0} />
                 </mesh>
                 {/* Accretion Disk Inner */}
                 <mesh ref={accretionRef} rotation={[Math.PI / 2.5, 0, 0]}>
-                    <ringGeometry args={[data.radius * 1.2, data.radius * 4, 64]} />
+                    <ringGeometry args={[data.radius * 1.2, data.radius * 4, 48]} />
                     <meshStandardMaterial 
                         map={accretionTexture ?? undefined}
-                        color={accretionTexture ? undefined : new THREE.Color("#ff5500")} 
+                        color={accretionTexture ? undefined : "#ff5500"} 
                         emissive="#ff2200"
                         emissiveIntensity={2}
                         transparent 
@@ -367,7 +380,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
                 </mesh>
                  {/* Accretion Disk Outer Glow */}
                  <mesh rotation={[Math.PI / 2.5, 0, 0]}>
-                    <ringGeometry args={[data.radius * 4, data.radius * 8, 64]} />
+                    <ringGeometry args={[data.radius * 4, data.radius * 8, 48]} />
                     <meshBasicMaterial 
                         map={accretionTexture ?? undefined}
                         color={accretionTexture ? undefined : "#aa0000"} 
@@ -385,7 +398,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     if (isStar) {
         return (
             <mesh ref={planetRef} onPointerOver={() => setHover(true)} onPointerOut={() => setHover(false)}>
-                <sphereGeometry args={[data.radius, 64, 64]} />
+                <sphereGeometry args={[data.radius, bodySegments, bodySegments]} />
                 {/* Animated Plasma Effect */}
                 <MeshDistortMaterial 
                     color={data.color}
@@ -407,10 +420,10 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
         ref={planetRef}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
-        castShadow={true}
-        receiveShadow={true}
+        castShadow={false}
+        receiveShadow={false}
     >
-        <sphereGeometry args={[data.radius, 64, 64]} />
+        <sphereGeometry args={[data.radius, bodySegments, bodySegments]} />
         <meshStandardMaterial 
             map={hasSurfaceTexture ? surfaceTexture : undefined}
             color={hasSurfaceTexture ? '#f5f5f5' : data.color}
@@ -429,7 +442,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
     </mesh>
             {isEarth && (
                 <mesh scale={[1.02, 1.02, 1.02]}>
-                    <sphereGeometry args={[data.radius, 64, 64]} />
+                    <sphereGeometry args={[data.radius, 48, 48]} />
                     <meshStandardMaterial 
                         map={earthCloudTexture}
                         alphaMap={earthCloudTexture}
@@ -462,7 +475,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             <Trail
                 width={data.radius * 0.8}
                 length={15}
-                color={new THREE.Color(data.color)}
+                color={trailColor}
                 attenuation={(width) => width * 0.5}
             >
                 {renderBody()}
@@ -485,7 +498,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
         )}
 
         {/* Labels - Enhanced for readability on huge objects */}
-        {showLabels && (
+        {shouldRenderLabel && (
           <Html 
             position={[0, labelYOffset, 0]} 
             center 
@@ -534,6 +547,7 @@ export const CelestialBody: React.FC<BodyProps> = ({ data, timeScale, isRealTime
             isRealTime={isRealTime} 
             showLabels={showLabels}
             language={language}
+            targetBody={targetBody}
           />
         ))}
       </group>
@@ -679,11 +693,12 @@ const InterstellarStream = () => {
     );
 };
 
-export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale: number; isRealTime: boolean; showStarDust: boolean }> = ({ showLabels, language, timeScale, isRealTime, showStarDust }) => {
+export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale: number; isRealTime: boolean; showStarDust: boolean; targetBody?: string | null }> = ({ showLabels, language, timeScale, isRealTime, showStarDust, targetBody }) => {
     const [hovered, setHover] = useState(false);
     const displayName = language === 'PL' ? SUN_DATA.namePL : SUN_DATA.name;
     const description = language === 'PL' ? SUN_DATA.descriptionPL : SUN_DATA.description;
     const typeLabel = BODY_TYPE_TRANSLATIONS['star'][language];
+    const shouldRenderLabel = showLabels && (hovered || targetBody === 'sun');
     const sunTexture = useTexture(SUN_TEXTURE);
     useEffect(() => {
         if (sunTexture) {
@@ -816,7 +831,7 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
                     onPointerOut={() => setHover(false)}
                     ref={sunSurfaceRef}
                 >
-                    <sphereGeometry args={[6, 128, 128]} />
+                    <sphereGeometry args={[6, 64, 64]} />
                     <meshStandardMaterial 
                         map={sunTexture}
                         emissiveMap={sunTexture}
@@ -844,7 +859,7 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
                 ))}
                 
                 {/* Light Source */}
-                <pointLight intensity={3} distance={15000} decay={0.5} color="#FFF8E7" castShadow shadow-mapSize={[2048, 2048]} />
+                <pointLight intensity={3} distance={15000} decay={0.5} color="#FFF8E7" />
                 
                 {/* Corona Glow */}
                 <mesh scale={[1.35, 1.35, 1.35]}>
@@ -856,7 +871,7 @@ export const Sun: React.FC<{ showLabels: boolean; language: Language; timeScale:
                     <meshBasicMaterial color="#FF6B00" transparent opacity={0.08} side={THREE.BackSide} blending={THREE.AdditiveBlending}/>
                 </mesh>
 
-                {showLabels && (
+                {shouldRenderLabel && (
                     <Html 
                         position={[0, 9, 0]} 
                         center 
